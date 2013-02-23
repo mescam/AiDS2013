@@ -3,8 +3,11 @@
 #include <ctime>
 #include <cstring>
 #include <iomanip>
+#include <fstream>
 
-int* insertionSort(int *t, int n) {
+typedef void(*sortingFunc)(int *t, int n);
+
+void insertionSort(int *t, int n) {
 	for(int i = 1; i<n; ++i) {
 		int v = t[i];
 		int j;
@@ -15,7 +18,6 @@ int* insertionSort(int *t, int n) {
 
 		t[j+1] = v;
 	}
-	return t;
 }
 
 void shellSort(int *t, int n) {
@@ -84,67 +86,107 @@ void heapSort(int *t, int n) {
 	}
 }
 
-void showTableOnOutput(int *t, int n) {
+void showArrayOnOutput(int *t, int n) {
 	for(int i = 0; i<n; ++i) {
 		std::cout << t[i] << " ";
 	}
 	std::cout << std::endl;
 }
 
-int* getRandomDataArray(int n) {
+int* getDataArray(int n, char z) {
 	int *t = new int[n];
 	for(int i = 0; i<n; i++) {
-		t[i] = rand()%100;
+		switch(z) {
+		
+		case 1: //random
+			t[i] = rand()%2000;
+			break;
+
+		case 2: //ascending
+			if(i==0) {
+				t[i] = rand()%100;
+			} else {
+				t[i] = t[i-1]+rand()%100;
+			}
+			break;
+
+		case 3: //descending
+			if(i==0) {
+				t[i] = rand()%100;
+			} else {
+				t[i] = t[i-1]-rand()%100;
+			}
+			break;
+
+		case 4: //constant
+			if(i==0) {
+				t[i] = rand()%100;
+			} else {
+				t[i] = t[i-1];
+			}
+			break;
+
+		case 5: //V-shaped
+			if(i==0) {
+				t[i] = rand()%100;
+			} else if(i<n/2) {
+				t[i] = t[i-1]-rand()%100;
+			} else {
+				t[i] = t[i-1]+rand()%100;
+			}
+			break;
+		}
+
 	}
 	return t;
 }
 
+void firstTest(sortingFunc f[4]) {
+	std::ofstream output("results.txt");
+
+	//first test
+	int n[10] = {50000, 100000, 250000, 500000, 1000000, 2000000, 5000000, 7500000, 10000000, 15000000};
+	int sets[4] = {3,4,1,5}; //descending, constant, random and V-shaped
+	int *t;
+	
+	for(int i=0; i<10; ++i) { //for every n
+		for(int j=0; j<4; ++j) { //for every data set type...
+			t = getDataArray(n[i], sets[j]); //we generate it
+
+			for(int l=0; l<4; ++l) { //for every sorting function
+				clock_t begin, end;
+				double timeSpent;
+
+				int* tCopy = new int[n[i]]; //we have to copy data
+				memcpy(tCopy, t, n[i]*sizeof(int));
+
+				begin = clock(); //starting time measure
+				f[l](tCopy, n[i]); //running sorting function
+				end = clock(); //finishing time measure
+
+				timeSpent = (10000*(end-begin))/CLOCKS_PER_SEC; //calculating time spent on sorting
+				printf("%.24E \n",timeSpent);
+				//output.precision(std::numeric_limits<double>::digits10 + 1);
+				output << n[i] << ";" << sets[j] << ";" << l << ";" << std::fixed << std::setprecision(8) << timeSpent << std::endl; //output to file
+				delete[] tCopy;
+			}
+			delete[] t; //cleaning
+		}
+	}
+	//END OF FIRST TEST
+
+	output.close();
+
+}
+
+
+
+
 int main(int argv, char **argc) {
 	srand(time(NULL));
-	const int n = 10;
-
-
-	int *t = getRandomDataArray(n);
-	std::cout << std::setw(20) << "UNSORTED: ";
-	showTableOnOutput(t, n);
-
-	//INSERTION SORT
-	int *t_insert = new int[n];
-	memcpy(t_insert, t, n*sizeof(int));
-	insertionSort(t_insert, n);
-	std::cout << std::setw(20) << "INSERTION SORT: ";
-	showTableOnOutput(t_insert, n);
-	delete[] t_insert;
-	//END OF INSERTION SORT
-
-	//SHELL SORT
-	int *t_shell = new int[n];
-	memcpy(t_shell, t, n*sizeof(int));
-	shellSort(t_shell, n);
-	std::cout << std::setw(20) << "SHELL SORT: ";
-	showTableOnOutput(t_shell, n);
-	delete[] t_shell;
-	//END OF SHELL SORT
-
-	//SELECTION SORT
-	int *t_selection = new int[n];
-	memcpy(t_selection, t, n*sizeof(int));
-	selectionSort(t_selection, n);
-	std::cout << std::setw(20) << "SELECTION SORT: ";
-	showTableOnOutput(t_selection, n);
-	delete[] t_selection;
-	//END OF SELECTION SORT
-
-	//HEAP SORT
-	int *t_heap = new int[n];
-	memcpy(t_heap, t, n*sizeof(int));
-	heapSort(t_heap, n);
-	std::cout << std::setw(20) << "HEAP SORT: ";
-	showTableOnOutput(t_heap, n);
-	delete[] t_heap;
-
-	//CLEANING
-	delete[] t; t=NULL;
+	sortingFunc f[4] = {insertionSort, shellSort, selectionSort, heapSort};
+	
+	firstTest(f);
 	
 	return 0;
 }

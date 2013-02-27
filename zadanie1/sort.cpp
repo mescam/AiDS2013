@@ -146,15 +146,19 @@ void firstTest(sortingFunc f[4]) {
 
   //first test
   //TODO: change n to smaller numbers so the test will be faster.
-  int n[10] = {50000, 100000, 250000, 500000, 1000000, 2000000, 5000000, 7500000, 10000000, 15000000};
-  int sets[4] = {3,4,1,5}; //descending, constant, random and V-shaped
+  int n[10] = {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000};
+  //int sets[4] = {3,4,1,5}; //descending, constant, random and V-shaped
+  int sets[5] = {1,2,3,4,5};
   int *t;
 
   for(int i=0; i<10; ++i) { //for each n
-    for(int j=0; j<4; ++j) { //for each data set type...
+    for(int j=0; j<5; ++j) { //for each data set type...
       t = getDataArray(n[i], sets[j]); //we generate it
 
       for(int l=0; l<4; ++l) { //for each sorting function
+        //DEBUG:
+        if(l!=0) continue;
+        //END OF DEBUG
         clock_t begin, end;
         double timeSpent;
 
@@ -165,12 +169,13 @@ void firstTest(sortingFunc f[4]) {
         f[l](tCopy, n[i]); //running sorting function
         end = clock(); //finishing time measure
 
-        timeSpent = (10000*(end-begin))/CLOCKS_PER_SEC; //calculating time spent on sorting
+        timeSpent = ((end-begin)); //calculating time spent on sorting
         //printf("%.24E \n",timeSpent);
         //output.precision(std::numeric_limits<double>::digits10 + 1);
         //TODO: better output
         //TODO: or idea proposed by Marcin - use awk after tests.
         output << n[i] << ";" << sets[j] << ";" << l << ";" << std::fixed << std::setprecision(8) << timeSpent << std::endl; //output to file
+        printf("Function %d sorted data set %d for n=%d in %f clicks\n",l,sets[j],n[i],timeSpent);
         delete[] tCopy;
       }
       delete[] t; //cleaning

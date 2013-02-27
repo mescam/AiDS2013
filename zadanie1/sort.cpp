@@ -145,15 +145,16 @@ void firstTest(sortingFunc f[4]) {
 	std::ofstream output("results.txt");
 
 	//first test
-	int n[10] = {50000, 100000, 250000, 500000, 1000000, 2000000, 5000000, 7500000, 10000000, 15000000};
+	//TODO: change n to smaller numbers so the test will be faster.
+  int n[10] = {50000, 100000, 250000, 500000, 1000000, 2000000, 5000000, 7500000, 10000000, 15000000};
 	int sets[4] = {3,4,1,5}; //descending, constant, random and V-shaped
 	int *t;
 	
-	for(int i=0; i<10; ++i) { //for every n
-		for(int j=0; j<4; ++j) { //for every data set type...
+	for(int i=0; i<10; ++i) { //for each n
+		for(int j=0; j<4; ++j) { //for each data set type...
 			t = getDataArray(n[i], sets[j]); //we generate it
 
-			for(int l=0; l<4; ++l) { //for every sorting function
+			for(int l=0; l<4; ++l) { //for each sorting function
 				clock_t begin, end;
 				double timeSpent;
 
@@ -165,9 +166,11 @@ void firstTest(sortingFunc f[4]) {
 				end = clock(); //finishing time measure
 
 				timeSpent = (10000*(end-begin))/CLOCKS_PER_SEC; //calculating time spent on sorting
-				printf("%.24E \n",timeSpent);
+				//printf("%.24E \n",timeSpent);
 				//output.precision(std::numeric_limits<double>::digits10 + 1);
-				output << n[i] << ";" << sets[j] << ";" << l << ";" << std::fixed << std::setprecision(8) << timeSpent << std::endl; //output to file
+				//TODO: better output
+        //TODO: or idea proposed by Marcin - use awk after tests.
+        output << n[i] << ";" << sets[j] << ";" << l << ";" << std::fixed << std::setprecision(8) << timeSpent << std::endl; //output to file
 				delete[] tCopy;
 			}
 			delete[] t; //cleaning

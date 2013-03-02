@@ -1,0 +1,17 @@
+set term pngcairo
+set output "insertion_1.png"
+set title "Porównanie czasu sortowania przy pomocy Insertion Sort\ndla różnych typów danych"
+set xlabel "Ilość elementów"
+set ylabel "Czas sortowania [ms]"
+plot "alg0.txt" u 1:(($2+$3+$4)/3) t 'Random' w lines smooth csplines, \
+"alg0.txt" u 1:(($5+$6+$7)/3) t 'Ascending' w lines smooth csplines,\
+"alg0.txt" u 1:(($8+$9+10)/3) t 'Descending' w lines smooth csplines, \
+"alg0.txt" u 1:(($11+$12+$13)/3) t 'Constant' w lines smooth csplines, \
+"alg0.txt" u 1:(($14+$15+$16)/3) t 'V-Shaped' w lines smooth csplines;
+
+set term pngcairo
+set output "insertion_2.png"
+set autoscale
+plot "alg0.txt" u 1:(($5+$6+$7)/3) t 'Ascending' w lines smooth csplines,\
+  "alg0.txt" u 1:(($11+$12+$13)/3) t 'Constant' w lines smooth csplines;
+

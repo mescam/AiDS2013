@@ -1,9 +1,28 @@
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * Copyright (C) Jakub Woźniak, Marcin Zaremba, 2013
+ */
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
 #include <cstring>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 
 typedef void(*sortingFunc)(int *t, int n);
 
@@ -94,6 +113,7 @@ void showArrayOnOutput(int *t, int n) {
 }
 
 int* getDataArray(int n, char z) {
+  srand(time(NULL));
   int *t = new int[n];
   for(int i = 0; i<n; i++) {
     switch(z) {
@@ -189,6 +209,57 @@ void firstTest(sortingFunc f[4]) {
 
 }
 
+void basicAlgorithmsTest1(sortingFunc f[4]) {
+  //I don't think that testing each algorithm with the same range of data is a good idea, so now we have a separated array.
+  int n[4][10] = {
+    {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, //0 beacuse now I'm only thinking about insertion sort
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+  };
+  int sets[5] = {1,2,3,4,5}; //it's not very helpful, but let's pretend it's important! :D
+  //int* t; //data set pointer
+
+  for (int i = 0; i < sizeof(f)/sizeof(sortingFunc); i++) { //for each algorithm (as in the first required test)
+    std::ostringstream fileName;
+    fileName << "results/alg" << i << ".txt";
+    std::ofstream output(fileName.str().c_str());
+    for (int j = 0; j < sizeof(n[i])/sizeof(int); j++) { //for each n
+      output << n[i][j];
+      for (int k = 0; k < sizeof(sets)/sizeof(int); k++) { //and for each data set type (it's getting boring :D)
+        for (int l = 0; l < 3; l++) { //test it 3 times so the results will be more accurate
+          int *t = getDataArray(n[i][j], k+1); //I know about possible data loss
+          printf("Testing func %d with n=%d, data set %d, test #%d...\n",i, n[i][j], k+1, l);
+          timespec begin, end;
+          double timeSpent;
+
+          //starting test!
+          clock_gettime(CLOCK_REALTIME, &begin);
+          f[i](t, n[i][j]);
+          clock_gettime(CLOCK_REALTIME, &end);
+
+          timeSpent = (double) (end.tv_sec - begin.tv_sec)+1.e-9*(end.tv_nsec - begin.tv_nsec);
+          timeSpent *= 1000;
+          bool sorted=true;
+
+          for (int m = 1; m < n[i][j]; m++) {
+            if(t[m-1]>t[m]) sorted=false;
+          }
+
+          if(!sorted) printf("\n\n\nERROR! ARRAY IS NOT SORTED!\n\n\n");
+
+          output << " " << std::setprecision(6) << timeSpent;
+          printf("OK! Sorted in %f\n", timeSpent);
+          delete[] t;
+          t=NULL;
+        }
+
+      }
+      output << std::endl;
+    }
+    output.close();
+  }
+}
 //void test2New(sortingFunc f[4]) {
 //
 //}
@@ -196,10 +267,10 @@ void firstTest(sortingFunc f[4]) {
 
 
 int main(int argv, char **argc) {
-  srand(time(NULL));
+  //srand(time(NULL));
   sortingFunc f[4] = {insertionSort, shellSort, selectionSort, heapSort};
-  firstTest(f);
-
+  //firstTest(f);
+  basicAlgorithmsTest1(f);
   return 0;
 }
 /* vim: set ts=2 sw=2 tw=0 et :*/

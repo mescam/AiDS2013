@@ -159,23 +159,25 @@ void firstTest(sortingFunc f[4]) {
         //DEBUG:
         if(l!=0) continue;
         //END OF DEBUG
-        clock_t begin, end;
+        //clock_t begin, end;
+        timespec begin, end;
         double timeSpent;
 
         int* tCopy = new int[n[i]]; //we have to copy data
         memcpy(tCopy, t, n[i]*sizeof(int));
 
-        begin = clock(); //starting time measure
+        //begin = clock(); //starting time measure
+        clock_gettime(CLOCK_REALTIME, &begin);
         f[l](tCopy, n[i]); //running sorting function
-        end = clock(); //finishing time measure
+        //end = clock(); //finishing time measure
+        clock_gettime(CLOCK_REALTIME, &end);
 
-        timeSpent = ((end-begin)); //calculating time spent on sorting
-        //printf("%.24E \n",timeSpent);
-        //output.precision(std::numeric_limits<double>::digits10 + 1);
+        timeSpent = (double) (end.tv_sec - begin.tv_sec)+1.e-9*(end.tv_nsec - begin.tv_nsec);
+        timeSpent *= 1000;
         //TODO: better output
         //TODO: or idea proposed by Marcin - use awk after tests.
-        output << n[i] << ";" << sets[j] << ";" << l << ";" << std::fixed << std::setprecision(8) << timeSpent << std::endl; //output to file
-        printf("Function %d sorted data set %d for n=%d in %f clicks\n",l,sets[j],n[i],timeSpent);
+        output << n[i] << ";" << sets[j] << ";" << l << ";" << std::fixed << std::setprecision(6) << timeSpent << std::endl; //output to file
+        printf("Function %d sorted data set %d for n=%d in %fms\n",l,sets[j],n[i],timeSpent);
         delete[] tCopy;
       }
       delete[] t; //cleaning
@@ -187,13 +189,15 @@ void firstTest(sortingFunc f[4]) {
 
 }
 
+//void test2New(sortingFunc f[4]) {
+//
+//}
 
 
 
 int main(int argv, char **argc) {
   srand(time(NULL));
   sortingFunc f[4] = {insertionSort, shellSort, selectionSort, heapSort};
-
   firstTest(f);
 
   return 0;

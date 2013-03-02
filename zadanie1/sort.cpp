@@ -161,72 +161,28 @@ int* getDataArray(int n, char z) {
   return t;
 }
 
-void firstTest(sortingFunc f[4]) {
-  std::ofstream output("results.txt");
-
-  //first test
-  //TODO: change n to smaller numbers so the test will be faster.
-  int n[10] = {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000};
-  //int sets[4] = {3,4,1,5}; //descending, constant, random and V-shaped
-  int sets[5] = {1,2,3,4,5};
-  int *t;
-
-  for(int i=0; i<10; ++i) { //for each n
-    for(int j=0; j<5; ++j) { //for each data set type...
-      t = getDataArray(n[i], sets[j]); //we generate it
-
-      for(int l=0; l<4; ++l) { //for each sorting function
-        //DEBUG:
-        if(l!=0) continue;
-        //END OF DEBUG
-        //clock_t begin, end;
-        timespec begin, end;
-        double timeSpent;
-
-        int* tCopy = new int[n[i]]; //we have to copy data
-        memcpy(tCopy, t, n[i]*sizeof(int));
-
-        //begin = clock(); //starting time measure
-        clock_gettime(CLOCK_REALTIME, &begin);
-        f[l](tCopy, n[i]); //running sorting function
-        //end = clock(); //finishing time measure
-        clock_gettime(CLOCK_REALTIME, &end);
-
-        timeSpent = (double) (end.tv_sec - begin.tv_sec)+1.e-9*(end.tv_nsec - begin.tv_nsec);
-        timeSpent *= 1000;
-        //TODO: better output
-        //TODO: or idea proposed by Marcin - use awk after tests.
-        output << n[i] << ";" << sets[j] << ";" << l << ";" << std::fixed << std::setprecision(6) << timeSpent << std::endl; //output to file
-        printf("Function %d sorted data set %d for n=%d in %fms\n",l,sets[j],n[i],timeSpent);
-        delete[] tCopy;
-      }
-      delete[] t; //cleaning
-    }
-  }
-  //END OF FIRST TEST
-
-  output.close();
-
-}
-
 void basicAlgorithmsTest1(sortingFunc f[4]) {
+
   //I don't think that testing each algorithm with the same range of data is a good idea, so now we have a separated array.
   int n[4][10] = {
     {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, //0 beacuse now I'm only thinking about insertion sort
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
+    {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
+    {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
   };
   int sets[5] = {1,2,3,4,5}; //it's not very helpful, but let's pretend it's important! :D
-  //int* t; //data set pointer
+  
 
   for (int i = 0; i < sizeof(f)/sizeof(sortingFunc); i++) { //for each algorithm (as in the first required test)
     std::ostringstream fileName;
     fileName << "results/alg" << i << ".txt";
     std::ofstream output(fileName.str().c_str());
+    
     for (int j = 0; j < sizeof(n[i])/sizeof(int); j++) { //for each n
       output << n[i][j];
+      
       for (int k = 0; k < sizeof(sets)/sizeof(int); k++) { //and for each data set type (it's getting boring :D)
+        
         for (int l = 0; l < 3; l++) { //test it 3 times so the results will be more accurate
           int *t = getDataArray(n[i][j], k+1); //I know about possible data loss
           printf("Testing func %d with n=%d, data set %d, test #%d...\n",i, n[i][j], k+1, l);
@@ -246,7 +202,10 @@ void basicAlgorithmsTest1(sortingFunc f[4]) {
             if(t[m-1]>t[m]) sorted=false;
           }
 
-          if(!sorted) printf("\n\n\nERROR! ARRAY IS NOT SORTED!\n\n\n");
+          if(!sorted) {
+            printf("\n\n\nERROR! ARRAY IS NOT SORTED!\n\n\n");
+            return;
+          }
 
           output << " " << std::setprecision(6) << timeSpent;
           printf("OK! Sorted in %f\n", timeSpent);
@@ -260,16 +219,10 @@ void basicAlgorithmsTest1(sortingFunc f[4]) {
     output.close();
   }
 }
-//void test2New(sortingFunc f[4]) {
-//
-//}
-
 
 
 int main(int argv, char **argc) {
-  //srand(time(NULL));
   sortingFunc f[4] = {insertionSort, shellSort, selectionSort, heapSort};
-  //firstTest(f);
   basicAlgorithmsTest1(f);
   return 0;
 }

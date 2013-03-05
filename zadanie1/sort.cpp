@@ -140,7 +140,7 @@ int quickSortPartition(int *t, int p, int r, int mode) {
   return i + 1;
 }
 
-void quickSort(int *t, int p, int r, int mode) {
+void quickSortRecursive(int *t, int p, int r, int mode) {
   int q;
 
   if(p < r) {

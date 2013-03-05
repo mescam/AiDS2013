@@ -25,11 +25,44 @@
 #include <fstream>
 #include <sstream>
 
-// flags to QuickSort modes
+// QS mode flags
 #define QS_RIGHT 1
 #define QS_RANDOM 2
 
+// definition of stack element
+typedef struct Element {
+  int l;
+  int r;
+  struct Element *prev;
+} Element;
+
 typedef void(*sortingFunc)(int *t, int n);
+
+// stack functions
+void pushToStack(Element **top, int l, int r) {
+  Element *el;
+
+  el = (Element*)malloc(sizeof(Element));
+  el->l = l;
+  el->r = r;
+  el->prev = *top;
+  *top = el;
+}
+
+int* popFromStack(Element **top) {
+  int data[2];
+
+  if(*top != NULL) {
+	data[0] = (*top)->l;
+	data[1] = (*top)->r;
+
+	Element *temp = *top;
+	*top = (*top)->prev;
+	free(temp);
+
+	return data;
+  }
+}
 
 void insertionSort(int *t, int n) {
   for(int i = 1; i<n; ++i) {

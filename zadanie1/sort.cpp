@@ -64,6 +64,19 @@ void popFromStack(Element **top, int *d) {
   }
 }
 
+int stackSize(Element **top) {
+  Element *el;
+  int c = 0;
+
+  el = *top;
+  while(el != NULL) {
+    c++; //C++ one more time!
+    el = el->prev;
+  }
+
+  return c;
+}
+
 void insertionSort(int *t, int n) {
   for(int i = 1; i<n; ++i) {
     int v = t[i];

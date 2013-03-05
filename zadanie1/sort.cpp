@@ -1,3 +1,4 @@
+-*- tab-width:2; indent-tabs-mode:nil;c-basic-offset:2; -*-
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,37 +111,37 @@ void heapSort(int *t, int n) {
 }
 
 void quickSortRecursive(int *t, int l, int r, int mode) {
-	int i, j, x;
-
-	if(mode == 2)
-		x = t[rand() % (r - l) + l + 1];
-	else
-		x = t[r];
+  int i, j, x;
 	
-	i = l;
-	j = r;
+  if(mode == 2)
+    x = t[rand() % (r - l) + l + 1];
+  else
+    x = t[r];
+  
+  i = l;
+  j = r;
 
-	do {
-		while(t[i] < x)
-			++i;
+  do {
+    while(t[i] < x)
+      ++i;
 
-		while(t[j] > x)
-			--j;
+    while(t[j] > x)
+      --j;
 
-		if(i <= j) {
-			int temp = t[i];
-			t[i] = t[j];
-			t[j] = temp;
-			++i;
-			--j;
- 		}
-	}
-	while(i < j);
-			
-	if(l < j)
-		quickSort(t, l, j, mode);
-	if(r > i)
-		quickSort(t, i, r, mode);
+    if(i <= j) {
+      int temp = t[i];
+      t[i] = t[j];
+      t[j] = temp;
+      ++i;
+      --j;
+    }
+  }
+  while(i < j);
+      
+  if(l < j)
+    quickSort(t, l, j, mode);
+  if(r > i)
+    quickSort(t, i, r, mode);
 }
 
 void showArrayOnOutput(int *t, int n) {

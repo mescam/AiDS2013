@@ -109,45 +109,38 @@ void heapSort(int *t, int n) {
   }
 }
 
-// QuickSort part with its own swap, partition and main function
-// check this out, mode = (QS_RIGHT|QS_RANDOM) (most right or random)
-void quickSortSwap(int *f, int *s) {
-  int temp;
+void quickSortRecursive(int *t, int l, int r, int mode) {
+	int i, j, x;
 
-  temp = *f;
-  *f = *s;
-  *s = temp;
-}
+	if(mode == 2)
+		x = t[rand() % (r - l) + l + 1];
+	else
+		x = t[r];
+	
+	i = l;
+	j = r;
 
-int quickSortPartition(int *t, int p, int r, int mode) {
-  int x, i;
+	do {
+		while(t[i] < x)
+			++i;
 
-  if(mode == 2)
-    quickSortSwap(&t[rand() % (r - p + 1) + p], &t[r]);
+		while(t[j] > x)
+			--j;
 
-  x = t[r];
-  i = p - 1;
-
-  for(int j = p; j < r; j++) {
-    if(t[j] <= x) {
-      i++;
-      quickSortSwap(&t[i], &t[j]);
-    }
-  }
-
-  quickSortSwap(&t[i + 1], &t[r]);
-
-  return i + 1;
-}
-
-void quickSortRecursive(int *t, int p, int r, int mode) {
-  int q;
-
-  if(p < r) {
-    q = quickSortPartition(t, p, r, mode);
-    quickSort(t, p, q - 1, mode);
-    quickSort(t, q + 1, r, mode);
-  }
+		if(i <= j) {
+			int temp = t[i];
+			t[i] = t[j];
+			t[j] = temp;
+			++i;
+			--j;
+ 		}
+	}
+	while(i < j);
+			
+	if(l < j)
+		quickSort(t, l, j, mode);
+	if(r > i)
+		quickSort(t, i, r, mode);
 }
 
 void showArrayOnOutput(int *t, int n) {

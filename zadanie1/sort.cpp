@@ -112,42 +112,42 @@ void heapSort(int *t, int n) {
 // QuickSort part with its own swap, partition and main function
 // check this out, mode = (QS_RIGHT|QS_RANDOM) (most right or random)
 void quickSortSwap(int *f, int *s) {
-	int temp;
+  int temp;
 
-	temp = *f;
-	*f = *s;
-	*s = temp;
+  temp = *f;
+  *f = *s;
+  *s = temp;
 }
 
 int quickSortPartition(int *t, int p, int r, int mode) {
-	int x, i;
-	
-	if(mode == 2)
-		quickSortSwap(&t[rand() % (r - p + 1) + p], &t[r]);
+  int x, i;
 
-	x = t[r];
-	i = p - 1;
+  if(mode == 2)
+    quickSortSwap(&t[rand() % (r - p + 1) + p], &t[r]);
 
-	for(int j = p; j < r; j++) {
-		if(t[j] <= x) {
-			i++;
-			quickSortSwap(&t[i], &t[j]);
-		}
-	}
+  x = t[r];
+  i = p - 1;
 
-	quickSortSwap(&t[i + 1], &t[r]);
+  for(int j = p; j < r; j++) {
+    if(t[j] <= x) {
+      i++;
+      quickSortSwap(&t[i], &t[j]);
+    }
+  }
 
-	return i + 1;
+  quickSortSwap(&t[i + 1], &t[r]);
+
+  return i + 1;
 }
 
 void quickSort(int *t, int p, int r, int mode) {
-	int q;
+  int q;
 
-	if(p < r) {
-		q = quickSortPartition(t, p, r, mode);
-		quickSort(t, p, q - 1, mode);
-		quickSort(t, q + 1, r, mode);
-	}
+  if(p < r) {
+    q = quickSortPartition(t, p, r, mode);
+    quickSort(t, p, q - 1, mode);
+    quickSort(t, q + 1, r, mode);
+  }
 }
 
 void showArrayOnOutput(int *t, int n) {
@@ -216,18 +216,18 @@ void basicAlgorithmsTest1(sortingFunc f[4]) {
     {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
   };
   int sets[5] = {1,2,3,4,5}; //it's not very helpful, but let's pretend it's important! :D
-  
+
 
   for (int i = 0; i < sizeof(f)/sizeof(sortingFunc); i++) { //for each algorithm (as in the first required test)
     std::ostringstream fileName;
     fileName << "results/alg" << i << ".txt";
     std::ofstream output(fileName.str().c_str());
-    
+
     for (int j = 0; j < sizeof(n[i])/sizeof(int); j++) { //for each n
       output << n[i][j];
-      
+
       for (int k = 0; k < sizeof(sets)/sizeof(int); k++) { //and for each data set type (it's getting boring :D)
-        
+
         for (int l = 0; l < 3; l++) { //test it 3 times so the results will be more accurate
           int *t = getDataArray(n[i][j], k+1); //I know about possible data loss
           printf("Testing func %d with n=%d, data set %d, test #%d...\n",i, n[i][j], k+1, l);

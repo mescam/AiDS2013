@@ -49,7 +49,7 @@ void pushToStack(Element **top, int l, int r) {
   *top = el;
 }
 
-int* popFromStack(Element **top) {
+void popFromStack(Element **top, int *d) {
   int data[2];
 
   if(*top != NULL) {
@@ -60,7 +60,7 @@ int* popFromStack(Element **top) {
     *top = (*top)->prev;
     free(temp);
 
-    return data;
+    memcpy(d, data, sizeof(data));
   }
 }
 

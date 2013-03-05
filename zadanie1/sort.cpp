@@ -53,7 +53,7 @@ int* popFromStack(Element **top) {
   int data[2];
 
   if(*top != NULL) {
-  	data[0] = (*top)->l;
+    data[0] = (*top)->l;
     data[1] = (*top)->r;
 
     Element *temp = *top;

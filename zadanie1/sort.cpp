@@ -1,4 +1,4 @@
--*- tab-width:2; indent-tabs-mode:nil;c-basic-offset:2; -*-
+/*-*- tab-width:2; indent-tabs-mode:nil;c-basic-offset:2; -*-*/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,9 +172,9 @@ void quickSortRecursive(int *t, int l, int r, int mode) {
   while(i < j);
       
   if(l < j)
-    quickSort(t, l, j, mode);
+    quickSortRecursive(t, l, j, mode);
   if(r > i)
-    quickSort(t, i, r, mode);
+    quickSortRecursive(t, i, r, mode);
 }
 
 void showArrayOnOutput(int *t, int n) {

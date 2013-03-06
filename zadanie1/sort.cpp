@@ -64,19 +64,6 @@ void popFromStack(Element **top, int *d) {
   }
 }
 
-int stackSize(Element **top) {
-  Element *el;
-  int c = 0;
-
-  el = *top;
-  while(el != NULL) {
-    c++; //C++ one more time!
-    el = el->prev;
-  }
-
-  return c;
-}
-
 void insertionSort(int *t, int n) {
   for(int i = 1; i<n; ++i) {
     int v = t[i];
@@ -208,12 +195,7 @@ void quickSortIterative(int *t, int l, int r, int mode) {
 
   pushToStack(&top, l, r);
 
-  /*
-    complexity up, because of list using,
-    each stackSize is a while (O(n)),
-    where n is a size of the stack
-  */    
-  while(stackSize(&top) > 0) {
+  while(top != NULL) {
     popFromStack(&top, el_data);
     
     quickSortPartition(t, el_data[0], el_data[1], mode, part_data);

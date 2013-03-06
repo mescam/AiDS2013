@@ -156,9 +156,10 @@ void heapSort(int *t, int n) {
   }
 }
 
-void quickSortRecursive(int *t, int l, int r, int mode) {
+void quickSortPartition(int *t, int l, int r, int mode, int *d) {
   int i, j, x;
-	
+  int data[2];
+  
   if(mode == 2)
     x = t[rand() % (r - l) + l + 1];
   else
@@ -183,11 +184,45 @@ void quickSortRecursive(int *t, int l, int r, int mode) {
     }
   }
   while(i < j);
-      
-  if(l < j)
-    quickSortRecursive(t, l, j, mode);
-  if(r > i)
-    quickSortRecursive(t, i, r, mode);
+
+  data[0] = i;
+  data[1] = j;
+
+  memcpy(d, data, sizeof(data));
+}
+
+void quickSortRecursive(int *t, int l, int r, int mode) {
+  int d[2];
+
+  quickSortPartition(t, l, r, mode, d);
+    
+  if(l < d[1])
+    quickSortRecursive(t, l, d[1], mode);
+  if(r > d[0])
+    quickSortRecursive(t, d[0], r, mode);
+}
+
+void quickSortIterative(int *t, int l, int r, int mode) {
+  Element *top = NULL;
+  int el_data[2], part_data[2];
+
+  pushToStack(&top, l, r);
+
+  /*
+    complexity up, because of list using,
+    each stackSize is a while (O(n)),
+    where n is a size of the stack
+  */    
+  while(stackSize(&top) > 0) {
+    popFromStack(&top, el_data);
+    
+    quickSortPartition(t, el_data[0], el_data[1], mode, part_data);
+
+    if(el_data[0] < part_data[1])
+      pushToStack(&top, el_data[0], part_data[1]);
+    if(el_data[1] > part_data[0])
+      pushToStack(&top, part_data[0], el_data[1]);
+  }  
 }
 
 void showArrayOnOutput(int *t, int n) {

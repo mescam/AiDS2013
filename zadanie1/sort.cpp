@@ -112,34 +112,34 @@ void selectionSort(int *t, int n) {
   }
 }
 
+
+void heapify(int *t, int n, int a) {
+  //lambda
+  //$ g++ -std=c++11 sort.cpp
+  auto left = [](int i)->int { return (2*(i+1))-1; };
+  auto right = [](int i)->int { return (2*(i+1)); };
+
+  int largest=a;
+
+  if(left(a)<n && t[left(a)]>t[largest]) largest=left(a);
+  if(right(a)<n && t[right(a)]>t[largest]) largest=right(a);
+
+  if(largest!=a) {
+    std::swap(t[largest], t[a]);
+    heapify(t, n, largest);
+  }
+}
+
 void heapSort(int *t, int n) {
-  int tmp, p=n/2, i, c;
-  while(1) {
-    if(p>0) {
-      tmp = t[--p];
-    } else {
-      n--;
-      if(!n) return;
-      tmp = t[n];
-      t[n] = t[0];
-    }
+  //building the heap
+  auto parent = [](int i)->int { return ((i+1)/2)-1; };
+  for (int i = parent(n-1); i >= 0; i--)
+    heapify(t, n, i);
 
-    i = p;
-    c = i*2+1;
-
-    while(c<n) {
-      if(c+1<n && t[c+1]>t[c]) c++; //C++!
-
-      if(t[c]>tmp) {
-        t[i] = t[c];
-        i = c;
-        c = i*2+1;
-      } else {
-        break;
-      }
-    }
-
-    t[i] = tmp;
+  //so now we can sort it
+  for (int i = n-1; i>0; i--) {
+    std::swap(t[0],t[i]);
+    heapify(t, --n, 0);
   }
 }
 
@@ -325,7 +325,11 @@ void basicAlgorithmsTest1(sortingFunc f[4]) {
 
 int main(int argv, char **argc) {
   sortingFunc f[4] = {insertionSort, shellSort, selectionSort, heapSort};
-  basicAlgorithmsTest1(f);
+  //basicAlgorithmsTest1(f);
+  int* d = getDataArray(11, 1);
+  showArrayOnOutput(d,11);
+  heapSort(d, 11);
+  showArrayOnOutput(d, 11);
   return 0;
 }
 /* vim: set ts=2 sw=2 tw=0 et :*/

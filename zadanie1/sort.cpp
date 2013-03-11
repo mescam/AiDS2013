@@ -114,15 +114,13 @@ void selectionSort(int *t, int n) {
 
 
 void heapify(int *t, int n, int a) {
-  //lambda
-  //$ g++ -std=c++11 sort.cpp
-  auto left = [](int i)->int { return (2*(i+1))-1; };
-  auto right = [](int i)->int { return (2*(i+1)); };
+  int left = (2*(a+1))-1;
+  int right = 2*(a+1);
 
   int largest=a;
 
-  if(left(a)<n && t[left(a)]>t[largest]) largest=left(a);
-  if(right(a)<n && t[right(a)]>t[largest]) largest=right(a);
+  if(left<n && t[left]>t[largest]) largest=left;
+  if(right<n && t[right]>t[largest]) largest=right;
 
   if(largest!=a) {
     std::swap(t[largest], t[a]);
@@ -132,8 +130,7 @@ void heapify(int *t, int n, int a) {
 
 void heapSort(int *t, int n) {
   //building the heap
-  auto parent = [](int i)->int { return ((i+1)/2)-1; };
-  for (int i = parent(n-1); i >= 0; i--)
+  for (int i = (n/2)-1; i >= 0; i--)
     heapify(t, n, i);
 
   //so now we can sort it

@@ -79,9 +79,9 @@ void insertionSort(int *t, int n) {
 
 void shellSort(int *t, int size)
 {
-  int h = 1;
+  int h;
 
-  for(h = 0; h < size; h = 3 * h + 1);
+  for(h = 1; h < size; h = 3 * h + 1);
   h /= 9;
   if(!h)
     h = 1;

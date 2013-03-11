@@ -77,27 +77,53 @@ void insertionSort(int *t, int n) {
   }
 }
 
-void shellSort(int *t, int n) {
-  //gap calculation (Prof. Donald Knuth's algorithm)
-  int h = 1;
-  while(h<n) h = 3*h+1;
-  h/=9;
-  if(!h) ++h;
+void shellSort(int *t, int size)
+{
+	int h = 1;
 
-  //sorting
-  while(h) {
-    for(int i = n-h-1; i>=0; --i) {
-      int v = t[i];
-      int j = i+h;
-      while(j<n && v>t[j]) {
-        t[j-h] = t[j];
-        j += h;
-      }
-      t[j-h] = v;
-    }
-    h /= 3;
-  }
+	for(h = 0; h < size; h = 3 * h + 1);
+	h /= 9;
+	if(!h)
+		h = 1;
+
+	while(h > 0)
+	{		
+		for(int i = h; i < size; i++)
+		{
+			int key = t[i];
+			int j;
+
+			for(j = i - h; j >= 0 && t[j] > key; j -= h)
+				t[j + h] = t[j];
+			t[j + h] = key;
+		}
+
+		h /= 3;
+	}
 }
+
+
+// void shellSort(int *t, int n) {
+//   //gap calculation (Prof. Donald Knuth's algorithm)
+//   int h = 1;
+//   while(h<n) h = 3*h+1;
+//   h/=9;
+//   if(!h) ++h;
+
+//   //sorting
+//   while(h) {
+//     for(int i = n-h-1; i>=0; --i) {
+//       int v = t[i];
+//       int j = i+h;
+//       while(j<n && v>t[j]) {
+//         t[j-h] = t[j];
+//         j += h;
+//       }
+//       t[j-h] = v;
+//     }
+//     h /= 3;
+//   }
+// }
 
 void selectionSort(int *t, int n) {
   int m, tmp;

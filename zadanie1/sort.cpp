@@ -103,28 +103,6 @@ void shellSort(int *t, int size)
 }
 
 
-// void shellSort(int *t, int n) {
-//   //gap calculation (Prof. Donald Knuth's algorithm)
-//   int h = 1;
-//   while(h<n) h = 3*h+1;
-//   h/=9;
-//   if(!h) ++h;
-
-//   //sorting
-//   while(h) {
-//     for(int i = n-h-1; i>=0; --i) {
-//       int v = t[i];
-//       int j = i+h;
-//       while(j<n && v>t[j]) {
-//         t[j-h] = t[j];
-//         j += h;
-//       }
-//       t[j-h] = v;
-//     }
-//     h /= 3;
-//   }
-// }
-
 void selectionSort(int *t, int n) {
   int m, tmp;
   for(int i = 0; i<n; ++i) {
@@ -169,12 +147,12 @@ void heapSort(int *t, int n) {
 void quickSortPartition(int *t, int l, int r, int mode, int *d) {
   int i, j, x;
   int data[2];
-  
+
   if(mode == 2)
     x = t[rand() % (r - l) + l + 1];
   else
     x = t[r];
-  
+
   i = l;
   j = r;
 
@@ -205,7 +183,7 @@ void quickSortRecursive(int *t, int l, int r, int mode) {
   int d[2];
 
   quickSortPartition(t, l, r, mode, d);
-    
+
   if(l < d[1])
     quickSortRecursive(t, l, d[1], mode);
   if(r > d[0])
@@ -220,7 +198,7 @@ void quickSortIterative(int *t, int l, int r, int mode) {
 
   while(top != NULL) {
     popFromStack(&top, el_data);
-    
+
     quickSortPartition(t, el_data[0], el_data[1], mode, part_data);
 
     if(el_data[0] < part_data[1])
@@ -286,6 +264,65 @@ int* getDataArray(int n, char z) {
   return t;
 }
 
+void basicAlgorithmsTest(sortingFunc f[4]){
+  int n[3][10] = {
+    {1000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000, 1250000, 15000000}, //linear
+    {1000, 10000, 20000, 50000, 75000, 100000, 150000, 200000, 500000, 750000}, //nlogn or n^(3/2)
+    {1000, 2000, 3000, 5000, 7000, 10000, 12000, 15000, 20000, 25000} //n^2
+  };
+
+  int *usingN[4][5] = {
+    //random ascending descending constant v-shaped
+    {n[2], n[0], n[2], n[0], n[2]}, //insertion
+    {n[1], n[1], n[1], n[1], n[1]},//shell sort
+    {n[2], n[2], n[2], n[2], n[2]}, //selection
+    {n[2], n[2], n[2], n[2], n[2]}
+  };
+  std::ofstream output("results/results.txt");
+
+  for (int i = 0; i < 4; i++) { //sorting func
+    output << "Algorithm #" << i+1 << std::endl;
+    for (int j = 1; j < 6; j++) {
+      output << "Testing data #" << j << std::endl;
+
+      for (int k = 0; k < 10; k++) {
+        printf("Testing algorithm #%d, data set #%d, n=%d\n",i,j,usingN[i][j-1][k]);
+        int *t = getDataArray(usingN[i][j-1][k], j);
+
+        timespec begin, end;
+        double timeSpent;
+
+        //starting test!
+        clock_gettime(CLOCK_REALTIME, &begin);
+        f[i](t, usingN[i][j-1][k]);
+        clock_gettime(CLOCK_REALTIME, &end);
+
+        timeSpent = (double) (end.tv_sec - begin.tv_sec)+1.e-9*(end.tv_nsec - begin.tv_nsec);
+        timeSpent *= 1000;
+        bool sorted=true;
+
+        for (int m = 1; m < usingN[i][j-1][k]; m++) {
+          if(t[m-1]>t[m]) sorted=false;
+        }
+
+        if(!sorted) {
+          printf("\n\n\nERROR! ARRAY IS NOT SORTED!\n\n\n");
+          return;
+        }
+
+        output << usingN[i][j-1][k] << " " << std::setprecision(6) << timeSpent << std::endl;
+
+        delete[] t;
+      }
+
+    }
+  }
+
+  output.close();
+
+}
+
+/*
 void basicAlgorithmsTest1(sortingFunc f[4]) {
 
   //I don't think that testing each algorithm with the same range of data is a good idea, so now we have a separated array.
@@ -312,26 +349,6 @@ void basicAlgorithmsTest1(sortingFunc f[4]) {
           int *t = getDataArray(n[i][j], k+1); //I know about possible data loss
           printf("Testing func %d with n=%d, data set %d, test #%d...\n",i, n[i][j], k+1, l);
           timespec begin, end;
-          double timeSpent;
-
-          //starting test!
-          clock_gettime(CLOCK_REALTIME, &begin);
-          f[i](t, n[i][j]);
-          clock_gettime(CLOCK_REALTIME, &end);
-
-          timeSpent = (double) (end.tv_sec - begin.tv_sec)+1.e-9*(end.tv_nsec - begin.tv_nsec);
-          timeSpent *= 1000;
-          bool sorted=true;
-
-          for (int m = 1; m < n[i][j]; m++) {
-            if(t[m-1]>t[m]) sorted=false;
-          }
-
-          if(!sorted) {
-            printf("\n\n\nERROR! ARRAY IS NOT SORTED!\n\n\n");
-            return;
-          }
-
           output << " " << std::setprecision(6) << timeSpent;
           printf("OK! Sorted in %f\n", timeSpent);
           delete[] t;
@@ -345,14 +362,11 @@ void basicAlgorithmsTest1(sortingFunc f[4]) {
   }
 }
 
-
+*/
 int main(int argv, char **argc) {
   sortingFunc f[4] = {insertionSort, shellSort, selectionSort, heapSort};
-  //basicAlgorithmsTest1(f);
-  int* d = getDataArray(11, 1);
-  showArrayOnOutput(d,11);
-  heapSort(d, 11);
-  showArrayOnOutput(d, 11);
+  basicAlgorithmsTest(f);
+
   return 0;
 }
 /* vim: set ts=2 sw=2 tw=0 et :*/

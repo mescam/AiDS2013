@@ -151,7 +151,7 @@ void quickSortPartition(int *t, int l, int r, int mode, int *d) {
   if(mode == 2)
     x = t[rand() % (r - l) + l + 1];
   else
-    x = t[r];
+    x = t[l];
 
   i = l;
   j = r;
@@ -325,16 +325,17 @@ void basicAlgorithmsTest(sortingFunc f[4]){
 void quickSortTest(quickFunc q[2]){
   int data[4] = {3,4,1,5};
   //int n[10 ] =  {1000, 2000, 5000, 10000, 15000, 20000, 35000, 50000, 75000, 100000};
-  int dd[2][10] = {
+  int dd[3][10] = {
     {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000},
-    {1000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 750000, 1000000}, 
+    {1000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 750000, 1000000},
+    {1000, 2000, 4000, 5000, 7000, 10000, 12000, 14000, 16000, 20000}
   };
 
   int *ddd[4][2][2]{
     {{dd[0],dd[1]},{dd[0],dd[1]}},//descending
-    {{dd[1],dd[1]},{dd[1],dd[1]}}, //constant
-    {{dd[1],dd[1]},{dd[1],dd[1]}}, //random
-    {{dd[1],dd[1]},{dd[1],dd[1]}} //v-shaped
+      {{dd[1],dd[1]},{dd[1],dd[1]}}, //constant
+      {{dd[1],dd[1]},{dd[1],dd[1]}}, //random
+      {{dd[1],dd[1]},{dd[1],dd[1]}} //v-shaped
   };//trolololololololo!
 
   std::ofstream output("results/quick.txt");
@@ -346,31 +347,40 @@ void quickSortTest(quickFunc q[2]){
         output << "Key " << k << std::endl;
 
         for (int l = 0; l < 10; l++) {
+
+          double timeSpent[5];
           int **n = ddd[i][j];
-          printf("Testing algorithm %d for data type %d with key %d, n=%d\n", j, i, k, n[k][l]);
-          int *t = getDataArray(n[k][l], data[i]);
-          timespec begin, end;
-          double timeSpent;
 
-          clock_gettime(CLOCK_REALTIME, &begin);
-          q[j](t, 0, n[k][l]-1, k+1);
-          clock_gettime(CLOCK_REALTIME, &end);
+          for (int m = 0; m < 5; m++) {
 
-          timeSpent = (double) (end.tv_sec - begin.tv_sec)+1.e-9*(end.tv_nsec - begin.tv_nsec);
-          timeSpent *= 1000;
-          bool sorted=true;
+            printf("Testing algorithm %d for data type %d with key %d, n=%d\n", j, i, k, n[k][l]);
+            int *t = getDataArray(n[k][l], data[i]);
+            timespec begin, end;
 
-          for (int m = 1; m < n[k][l]; m++) {
-            if(t[m-1]>t[m]) sorted=false;
+            clock_gettime(CLOCK_REALTIME, &begin);
+            q[j](t, 0, n[k][l]-1, k+1);
+            clock_gettime(CLOCK_REALTIME, &end);
+
+            timeSpent[m] = (double) (end.tv_sec - begin.tv_sec)+1.e-9*(end.tv_nsec - begin.tv_nsec);
+            timeSpent[m] *= 1000;
+            bool sorted=true;
+
+            for (int w = 1; w < n[k][l]; w++) {
+              if(t[w-1]>t[w]) sorted=false;
+            }
+
+            if(!sorted) {
+              printf("\n\n\nERROR! ARRAY IS NOT SORTED!\n\n\n");
+              return;
+            }
+            delete[] t;
           }
-
-          if(!sorted) {
-            printf("\n\n\nERROR! ARRAY IS NOT SORTED!\n\n\n");
-            return;
+          double timeSpentAvg=0;
+          for (int w = 0; w < 5; w++) {
+            timeSpentAvg+=timeSpent[w];
           }
-
-          output << n[k][l] << " " << std::fixed << std::setprecision(6) << timeSpent << std::endl;
-          delete[] t;
+          timeSpentAvg/=5;
+          output << n[k][l] << " " << std::fixed << std::setprecision(6) << timeSpentAvg << std::endl;
         }
 
       }

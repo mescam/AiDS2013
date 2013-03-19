@@ -37,7 +37,7 @@ typedef struct Element {
 } Element;
 
 typedef void(*sortingFunc)(int *t, int n);
-
+typedef void(*quickFunc)(int *t, int l, int r, int mode);
 // stack functions
 void pushToStack(Element **top, int l, int r) {
   Element *el;
@@ -266,9 +266,9 @@ int* getDataArray(int n, char z) {
 
 void basicAlgorithmsTest(sortingFunc f[4]){
   int n[3][10] = {
-    {1000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000, 1250000, 15000000}, //linear
-    {1000, 10000, 20000, 50000, 75000, 100000, 150000, 200000, 500000, 750000}, //nlogn or n^(3/2)
-    {1000, 2000, 3000, 5000, 7000, 10000, 12000, 15000, 20000, 25000} //n^2
+    {1000, 5000, 10000, 50000, 100000, 250000, 500000, 1000000, 1500000, 2000000}, //linear
+    {1000, 5000, 10000, 15000, 20000, 50000, 75000, 100000, 150000, 200000}, //nlogn or n^(3/2)
+    {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000} //n^2
   };
 
   int *usingN[4][5] = {
@@ -276,7 +276,7 @@ void basicAlgorithmsTest(sortingFunc f[4]){
     {n[2], n[0], n[2], n[0], n[2]}, //insertion
     {n[1], n[1], n[1], n[1], n[1]},//shell sort
     {n[2], n[2], n[2], n[2], n[2]}, //selection
-    {n[2], n[2], n[2], n[2], n[2]}
+    {n[1], n[1], n[1], n[1], n[1]}
   };
   std::ofstream output("results/results.txt");
 
@@ -322,50 +322,85 @@ void basicAlgorithmsTest(sortingFunc f[4]){
 
 }
 
-/*
-void basicAlgorithmsTest1(sortingFunc f[4]) {
-
-  //I don't think that testing each algorithm with the same range of data is a good idea, so now we have a separated array.
-  int n[4][10] = {
-    {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
-    {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
-    {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
-    {500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000, 150000},
+void quickSortTest(quickFunc q[2]){
+  int data[4] = {3,4,1,5};
+  //int n[10 ] =  {1000, 2000, 5000, 10000, 15000, 20000, 35000, 50000, 75000, 100000};
+  int dd[2][10] = {
+    {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000},
+    {1000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 750000, 1000000}, 
   };
-  int sets[5] = {1,2,3,4,5}; //it's not very helpful, but let's pretend it's important! :D
 
+  int *ddd[4][2][2]{
+    {{dd[0],dd[1]},{dd[0],dd[1]}},//descending
+    {{dd[1],dd[1]},{dd[1],dd[1]}}, //constant
+    {{dd[1],dd[1]},{dd[1],dd[1]}}, //random
+    {{dd[1],dd[1]},{dd[1],dd[1]}} //v-shaped
+  };//trolololololololo!
 
-  for (int i = 0; i < sizeof(f)/sizeof(sortingFunc); i++) { //for each algorithm (as in the first required test)
-    std::ostringstream fileName;
-    fileName << "results/alg" << i << ".txt";
-    std::ofstream output(fileName.str().c_str());
+  std::ofstream output("results/quick.txt");
+  for (int i = 0; i < 4; i++) { //data type
+    output << "Data type " << i << std::endl;
+    for (int j = 0; j < 2; j++) { //function
+      output << "Function #" << j << std::endl;
+      for (int k = 0; k < 2; k++) { //key
+        output << "Key " << k << std::endl;
 
-    for (int j = 0; j < sizeof(n[i])/sizeof(int); j++) { //for each n
-      output << n[i][j];
-
-      for (int k = 0; k < sizeof(sets)/sizeof(int); k++) { //and for each data set type (it's getting boring :D)
-
-        for (int l = 0; l < 3; l++) { //test it 3 times so the results will be more accurate
-          int *t = getDataArray(n[i][j], k+1); //I know about possible data loss
-          printf("Testing func %d with n=%d, data set %d, test #%d...\n",i, n[i][j], k+1, l);
+        for (int l = 0; l < 10; l++) {
+          int **n = ddd[i][j];
+          printf("Testing algorithm %d for data type %d with key %d, n=%d\n", j, i, k, n[k][l]);
+          int *t = getDataArray(n[k][l], data[i]);
           timespec begin, end;
-          output << " " << std::setprecision(6) << timeSpent;
-          printf("OK! Sorted in %f\n", timeSpent);
+          double timeSpent;
+
+          clock_gettime(CLOCK_REALTIME, &begin);
+          q[j](t, 0, n[k][l]-1, k+1);
+          clock_gettime(CLOCK_REALTIME, &end);
+
+          timeSpent = (double) (end.tv_sec - begin.tv_sec)+1.e-9*(end.tv_nsec - begin.tv_nsec);
+          timeSpent *= 1000;
+          bool sorted=true;
+
+          for (int m = 1; m < n[k][l]; m++) {
+            if(t[m-1]>t[m]) sorted=false;
+          }
+
+          if(!sorted) {
+            printf("\n\n\nERROR! ARRAY IS NOT SORTED!\n\n\n");
+            return;
+          }
+
+          output << n[k][l] << " " << std::fixed << std::setprecision(6) << timeSpent << std::endl;
           delete[] t;
-          t=NULL;
         }
 
       }
-      output << std::endl;
+
     }
-    output.close();
+
   }
+
+  output.close();
+
 }
 
-*/
+
 int main(int argv, char **argc) {
   sortingFunc f[4] = {insertionSort, shellSort, selectionSort, heapSort};
-  basicAlgorithmsTest(f);
+  quickFunc q[2] = {quickSortRecursive, quickSortIterative};
+
+  int d=0;
+  std::cout << "Test? [1/2]: ";
+  std::cin >> d;
+  switch (d) {
+    case 1:
+      basicAlgorithmsTest(f);
+      break;
+    case 2:
+      quickSortTest(q);
+      break;
+    default:
+      std::cout << "Sorry." << std::endl;
+  }
 
   return 0;
 }

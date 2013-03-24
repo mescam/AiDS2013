@@ -21,59 +21,78 @@
 #include <cstdio>
 
 // Dynamic list implementation
+namespace List {
+  struct ListElement {
+    int key;
+    ListElement *next;
+  };
 
-struct ListElement {
-  int key;
-  ListElement *next;
-};
+  typedef ListElement* PListElement;
 
-typedef ListElement* PListElement;
+  PListElement initElement(int);
+  void insertElement(PListElement &, int);
+  PListElement searchList(PListElement &, int);
+  void printList(PListElement &);
+  void freeList(PListElement &);  
 
-PListElement initElement(int key) {
-  PListElement el = new ListElement;
-  el->key = key;
-  el->next = NULL;
+  PListElement initElement(int key) {
+    PListElement el = new ListElement;
+    el->key = key;
+    el->next = NULL;
 
-  return el;
-}
-
-void freeList(PListElement &head) {
-  PListElement el, toDel;
-
-  el = head;
-
-  while(el != NULL) {
-    toDel = el;
-    el = el->next;
-    delete toDel;
+    return el;
   }
-}
+
+  void freeList(PListElement &head) {
+    PListElement el, toDel;
+
+    el = head;
+
+    while(el != NULL) {
+      toDel = el;
+      el = el->next;
+      delete toDel;
+    }
+  }
 
 // version to just test,
 // self-sorting list algorithm will be applied
-void insertElement(PListElement &head, int key) {
-  PListElement el = initElement(key);
+  void insertElement(PListElement &head, int key) {
+    PListElement el = initElement(key);
 
-  if(head != NULL) 
-    el->next = head;
-  head = el;
-}
+    if(head != NULL) 
+      el->next = head;
+    head = el;
+  }
 
-void printList(PListElement &head) {
-  PListElement el = head;
+  PListElement searchList(PListElement &head, int key) {
+    PListElement el;
 
-  while(el != NULL) {
-    std::cout << el->key << " ";
-    el = el->next;
+    for(el = head; el != NULL && el->key != key; el = el->next);
+
+    return el;
+  }
+
+  void printList(PListElement &head) {
+    PListElement el = head;
+
+    while(el != NULL) {
+      std::cout << el->key << " ";
+      el = el->next;
+    }
   }
 }
 
 int main() {
+  using namespace List;
+  
   PListElement head = NULL;
 
   insertElement(head, 12);
   insertElement(head, 20);
   insertElement(head, 2312);
+
+  PListElement se = searchList(head, 231);
 
   printList(head);
   freeList(head);

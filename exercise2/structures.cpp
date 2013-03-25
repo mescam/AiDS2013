@@ -36,6 +36,8 @@ typedef ListElement* PListElement;
 
 PListElement initElement(int);
 void insertElement(PListElement &, int);
+void destroyElement(PListElement &, int);
+PListElement initList();
 PListElement searchList(PListElement &, int);
 void printList(PListElement &);
 void freeList(PListElement &);  
@@ -115,6 +117,14 @@ void printList(PListElement &head) {
   }
 }
 
+/*
+ * All kind of utils
+ *
+ */
+
+int* generateData(const int);
+void printArray(int [], int);
+
 int* generateData(const int n) {
   int *a = new int[n];
   int c = 0;
@@ -146,21 +156,19 @@ void printArray(int a[], int size) {
     std::cout << a[i] << " ";
 }
 
+// main stuff
 int main() {
-
   srand(time(NULL));
   PListElement l = initList();
 
-  insertElement(l, 32);
-  insertElement(l, 15);
-  insertElement(l, 8);
-  destroyElement(l, 15);
-  insertElement(l, 12321);
+  int n = 500;
+  int *a = generateData(n);
+
+  for(int i = 0; i < n; i++)
+    insertElement(l, a[i]);
 
   printList(l);
-  std::cout << "\n\n";
-  int *a = generateData(500);
-  printArray(a, 500);
+
   freeList(l);
   
   return 0;

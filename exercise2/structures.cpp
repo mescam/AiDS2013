@@ -188,6 +188,19 @@ void freeBstTree(PBstElement el) {
   }
 }
 
+PBstElement searchBstTree(PBstElement root, int key) {
+  PBstElement el = root;
+
+  while(el != NULL && el->key != key) {
+    if(key < el->key)
+      el = el->left;
+    else
+      el = el->right;    
+  }
+
+  return el;
+}
+
 void printBstTree(PBstElement el) {
   if(el != NULL) {
     printBstTree(el->left);
@@ -264,9 +277,19 @@ void printArray(int a[], int size) {
 //main stuff
 int main() {
   srand(time(NULL));
-  int *a = generateData(1000000);
+  int *a = generateData(20);
 
-  PBstElement root = initBstTree(a, 1000000);
+  PBstElement root = initBstTree(a, 20);
+  printBstTree(root);
+  
+  int val;
+  std::cout << "\n\nWhat do you wanna search?\n";
+  std::cin >> val;
+
+  PBstElement e = searchBstTree(root, val);
+  if(e != NULL)
+    std::cout << "Found";
+  
   freeBstTree(root);
   
   //printBstTree(root);

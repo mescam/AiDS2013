@@ -34,9 +34,9 @@ struct ListElement {
 
 typedef ListElement* PListElement;
 
-PListElement initElement(int);
-void insertElement(PListElement &, int);
-void destroyElement(PListElement &, int);
+PListElement initListElement(int);
+void insertListElement(PListElement &, int);
+void destroyListElement(PListElement &, int);
 PListElement initList();
 PListElement searchList(PListElement &, int);
 void printList(PListElement &);
@@ -48,13 +48,13 @@ PListElement initList() {
     there're our guards, inserting with 'em is just heaven,
     without - hell. (so much ifs needed then)
   */
-  PListElement el = initElement(-INT_MAX);
-  el->next = initElement(INT_MAX);
+  PListElement el = initListElement(-INT_MAX);
+  el->next = initListElement(INT_MAX);
 
   return el;
 }
 
-PListElement initElement(int key) {
+PListElement initListElement(int key) {
   PListElement el = new ListElement; 
   el->key = key;
   el->next = NULL;
@@ -62,7 +62,7 @@ PListElement initElement(int key) {
   return el;
 }
 
-void destroyElement(PListElement &head, int key) {
+void destroyListElement(PListElement &head, int key) {
   PListElement el = head;
 
   while(el->key != INT_MAX) {
@@ -89,8 +89,8 @@ void freeList(PListElement &head) {
   }
 }
 
-void insertElement(PListElement &head, int key) {
-  PListElement toIns = initElement(key);
+void insertListElement(PListElement &head, int key) {
+  PListElement toIns = initListElement(key);
   PListElement el;
 
   for(el = head; key > el->next->key; el = el->next);
@@ -104,7 +104,7 @@ PListElement searchList(PListElement &head, int key) {
   for(el = head; el->key != INT_MAX; el = el->next)
     if(el->key == key)
       break;
-
+ 
   return el->key == INT_MAX ? NULL : el;
 }
 
@@ -118,14 +118,91 @@ void printList(PListElement &head) {
 }
 
 /*
- * All kind of utils
+ * BST implementation
  *
  */
 
+struct BstElement {
+  int key;
+  BstElement *left;
+  BstElement *right;
+  BstElement *parent;
+};
+
+typedef BstElement* PBstElement;
+
+PBstElement initBstTree(int [], int);
+PBstElement initBstElement(int);
+void insertBstElement(PBstElement &, int);
+void printBstTree(PBstElement);
+void freeBstTree(PBstElement);
+
+PBstElement initBstTree(int a[], int size) {
+  PBstElement root = initBstElement(a[0]);
+  
+  for(int i = 1; i < size; i++)
+    insertBstElement(root, a[i]);
+
+  return root;
+}
+
+PBstElement initBstElement(int key) {
+  PBstElement el = new BstElement;
+  el->key = key;
+  el->right = NULL;
+  el->left = NULL;
+  el->parent = NULL;
+
+  return el;
+}
+
+void insertBstElement(PBstElement &root, int key) {
+  PBstElement toParent = NULL;
+  PBstElement el = root;
+  PBstElement toIns = initBstElement(key);
+
+  while(el != NULL) {
+    toParent = el;
+
+    if(key < el->key)
+      el = el->left;
+    else
+      el = el->right;
+  }
+
+  toIns->parent = toParent;
+
+  if(toParent == NULL)
+    root = toIns;
+  else if(key < toParent->key)
+    toParent->left = toIns;
+  else if(key > toParent->key)
+    toParent->right = toIns;
+}
+
+void freeBstTree(PBstElement el) {
+  if(el != NULL) {
+    delete[] el;
+    freeBstTree(el->left);
+    freeBstTree(el->right);
+  }
+}
+
+void printBstTree(PBstElement el) {
+  if(el != NULL) {
+    printBstTree(el->left);
+    std::cout << el->key << " ";
+    printBstTree(el->right);
+  }
+}
+
+/*
+ * All kind of utils
+ */
 int* generateData(int n);
 void printArray(int [], int);
 
-// int* generateData(const int n) {
+// int* generateData(int n) {
 //   int *a = new int[n];
 //   int c = 0;
 // //  int uniqCounter = 0; //for fun :D
@@ -149,12 +226,12 @@ void printArray(int [], int);
 // //  std::cout << "Not unique: " << uniqCounter << std::endl;
 
 //   return a;
-// }
+//}
 
 int* generateData(int n) {
-  const int howMuch = 4 * n;
-  /*
-   * dynamically allocated because
+  const int howMuch = 5 * n;
+  
+  /* dynamically allocated because
    * howMuch circa about 4M kills
    * static C++ binding
    */
@@ -164,7 +241,7 @@ int* generateData(int n) {
   for(int i = 0; i < howMuch; i++)
     k[i] = i + 1;
 
-  for(int i = howMuch * 5; i > 0; i--) {
+  for(int i = howMuch * 10; i > 0; i--) {
     int indexOne = rand() % howMuch;
     int indexTwo = rand() % howMuch;
 
@@ -184,31 +261,20 @@ void printArray(int a[], int size) {
     std::cout << a[i] << " ";
 }
 
-double timeDiff(timespec timeOne, timespec timeTwo) {
-  return ((timeTwo.tv_sec - timeOne.tv_sec) + 1e-9*(timeTwo.tv_nsec - timeOne.tv_nsec)) * 1000;  
-}
-
-// main stuff
+//main stuff
 int main() {
   srand(time(NULL));
-
-  timespec timeOne, timeTwo;
-
-  clock_gettime(CLOCK_REALTIME, &timeOne);
   int *a = generateData(1000000);
-  clock_gettime(CLOCK_REALTIME, &timeTwo);
-  std::cout << timeDiff(timeOne, timeTwo) << std::endl;
 
-  //printArray(a,1000000);
-
-  delete[] a;
+  PBstElement root = initBstTree(a, 1000000);
+  freeBstTree(root);
+  
+  //printBstTree(root);
   
   return 0;
 }
 
 /* vim: set ts=2 sw=2 tw=0 et :*/
-
-
 
 
 

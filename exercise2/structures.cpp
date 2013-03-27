@@ -182,9 +182,9 @@ void insertBstElement(PBstElement &root, int key) {
 
 void freeBstTree(PBstElement el) {
   if(el != NULL) {
-    delete[] el;
     freeBstTree(el->left);
     freeBstTree(el->right);
+    delete el;
   }
 }
 
@@ -291,7 +291,7 @@ int main() {
     std::cout << "Found";
   
   freeBstTree(root);
-  
+  delete[] a;
   //printBstTree(root);
   
   return 0;

@@ -122,32 +122,60 @@ void printList(PListElement &head) {
  *
  */
 
-int* generateData(const int);
+int* generateData(int n);
 void printArray(int [], int);
 
-int* generateData(const int n) {
-  int *a = new int[n];
-  int c = 0;
-//  int uniqCounter = 0; //for fun :D
+// int* generateData(const int n) {
+//   int *a = new int[n];
+//   int c = 0;
+// //  int uniqCounter = 0; //for fun :D
   
-  do {
-    int number = rand() % (4*n);
+//   do {
+//     int number = rand() % (8*n);
 
-    bool isUnique = true;
-    for(int i = 0; i < c; i++)
-      if(a[i] == number) {
-        isUnique = false;
-        //      uniqCounter++;
-        break;
-      }
+//     bool isUnique = true;
+//     for(int i = 0; i < c; i++)
+//       if(a[i] == number) {
+//         isUnique = false;
+//         //      uniqCounter++;
+//         break;
+//       }
 
-    if(isUnique)
-      a[c++] = number;
+//     if(isUnique)
+//       a[c++] = number;
+//   }
+//   while(c < n);
+
+// //  std::cout << "Not unique: " << uniqCounter << std::endl;
+
+//   return a;
+// }
+
+int* generateData(int n) {
+  const int howMuch = 4 * n;
+  /*
+   * dynamically allocated because
+   * howMuch circa about 4M kills
+   * static C++ binding
+   */
+  int *k = new int[howMuch];
+  int *a = new int[n];
+
+  for(int i = 0; i < howMuch; i++)
+    k[i] = i + 1;
+
+  for(int i = howMuch * 5; i > 0; i--) {
+    int indexOne = rand() % howMuch;
+    int indexTwo = rand() % howMuch;
+
+    std::swap(k[indexOne], k[indexTwo]);
   }
-  while(c < n);
 
-//  std::cout << "Not unique: " << uniqCounter << std::endl;
+  for(int i = 0; i < n; i++)
+    a[i] = k[i];
 
+  delete[] k;
+  
   return a;
 }
 
@@ -156,25 +184,31 @@ void printArray(int a[], int size) {
     std::cout << a[i] << " ";
 }
 
+double timeDiff(timespec timeOne, timespec timeTwo) {
+  return ((timeTwo.tv_sec - timeOne.tv_sec) + 1e-9*(timeTwo.tv_nsec - timeOne.tv_nsec)) * 1000;  
+}
+
 // main stuff
 int main() {
   srand(time(NULL));
-  PListElement l = initList();
 
-  int n = 500;
-  int *a = generateData(n);
+  timespec timeOne, timeTwo;
 
-  for(int i = 0; i < n; i++)
-    insertElement(l, a[i]);
+  clock_gettime(CLOCK_REALTIME, &timeOne);
+  int *a = generateData(1000000);
+  clock_gettime(CLOCK_REALTIME, &timeTwo);
+  std::cout << timeDiff(timeOne, timeTwo) << std::endl;
 
-  printList(l);
+  //printArray(a,1000000);
 
-  freeList(l);
+  delete[] a;
   
   return 0;
 }
 
 /* vim: set ts=2 sw=2 tw=0 et :*/
+
+
 
 
 

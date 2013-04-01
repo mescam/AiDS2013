@@ -231,21 +231,56 @@ void printBstTree(PBstElement el) {
  * AVL implementation
  *
  */
+struct AVLNode {
+  int value, ratio;
+  AVLNode *parent, *left, *right;
+};
 
-void initAvlTree(int a[], int size);
+AVLNode *initAvlTree(int a[], int size);
 int qsortCmp(const void *a, const void *b);
+//AVLNode *initAvlTreeBounded(int a[], int size, int left, int right, AVLNode *root);
+
+
+AVLNode *initAvlTreeBounded(int a[], int size, int left, int right) {
+  int key = (left+right)/2;
+
+  //printf("Wywolanie l=%d r=%d k=%d\n",left,right,key);
+  
+  AVLNode *root = new AVLNode;
+  root->left = nullptr; 
+  root->right = nullptr;
+  root->parent = nullptr;
+  root->value = a[key];
+
+  if(left<=(key-1)) {
+    root->left = initAvlTreeBounded(a, size, left, key-1);
+    root->left->parent = root;
+  }
+  if((key+1)<=right) {
+    root->right = initAvlTreeBounded(a, size, key+1, right);
+    root->right->parent = root;
+  }
+
+  return root;
+}
+
+AVLNode *initAvlTree(int a[], int size) {
+  //AVLNode *root = nullptr;
+  std::qsort(a, size, sizeof(int), qsortCmp);
+
+  return initAvlTreeBounded(a, size, 0, size-1);
+}
 
 int qsortCmp(const void *a, const void *b) {
-  int returnCode;
   
   if(*(int*)a < *(int*)b)
-    returnCode = -1;
+    return -1;
   else if(*(int*)a > *(int*)b)
-    returnCode = 1;
+    return 1;
   else if(*(int*)a == *(int*)b)
-    returnCode = 0;
+    return 0;
 
-  return returnCode;
+  return 0;
 }
 
 /*
@@ -254,31 +289,11 @@ int qsortCmp(const void *a, const void *b) {
 int* generateData(int n);
 void printArray(int [], int);
 
-// int* generateData(int n) {
-//   int *a = new int[n];
-//   int c = 0;
-// //  int uniqCounter = 0; //for fun :D
-  
-//   do {
-//     int number = rand() % (8*n);
-
-//     bool isUnique = true;
-//     for(int i = 0; i < c; i++)
-//       if(a[i] == number) {
-//         isUnique = false;
-//         //      uniqCounter++;
-//         break;
-//       }
-
-//     if(isUnique)
-//       a[c++] = number;
-//   }
-//   while(c < n);
-
-// //  std::cout << "Not unique: " << uniqCounter << std::endl;
-
-//   return a;
-//}
+void printAvlTree(AVLNode *node){
+  std::cout << node->value << " ";
+  if(node->left != nullptr) printAvlTree(node->left);
+  if(node->right != nullptr) printAvlTree(node->right);
+}
 
 int* generateData(int n) {
   const int howMuch = 5 * n;
@@ -318,6 +333,10 @@ int main() {
   srand(time(NULL));
 
   /* shit goes here */
+  int* arr = generateData(10);
+  AVLNode* r = initAvlTree(arr, 10);
+  printAvlTree(r);
+
   
   return 0;
 }

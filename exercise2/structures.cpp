@@ -20,7 +20,9 @@
 #include <iostream>
 #include <climits>
 #include <cstdlib>
+#include <cstdio>
 #include <ctime>
+#include <fstream>
 
 /*
  * Dynamic list implementation
@@ -100,7 +102,7 @@ void insertListElement(PListElement &head, int key) {
 
 PListElement searchList(PListElement &head, int key) {
   PListElement el;
-
+ 
   for(el = head; el->key != INT_MAX; el = el->next)
     if(el->key == key)
       break;
@@ -134,13 +136,15 @@ typedef BstElement* PBstElement;
 PBstElement initBstTree(int [], int);
 PBstElement initBstElement(int);
 void insertBstElement(PBstElement &, int);
+void destroyBstElement(PBstElement &, int);
+PBstElement searchBstTree(PBstElement &, int);
 void printBstTree(PBstElement);
 void freeBstTree(PBstElement);
 
 PBstElement initBstTree(int a[], int size) {
-  PBstElement root = initBstElement(a[0]);
+  PBstElement root = NULL;
   
-  for(int i = 1; i < size; i++)
+  for(int i = 0; i < size; i++)
     insertBstElement(root, a[i]);
 
   return root;
@@ -180,6 +184,20 @@ void insertBstElement(PBstElement &root, int key) {
     toParent->right = toIns;
 }
 
+void destroyBstElement(PBstElement &root, int key) {
+  PBstElement el = searchBstTree(root, key);
+
+  if(el->left && el->right) {
+    std::cout << "both children";
+  }
+  else if(el->left) {
+    std::cout << "one child";
+  }
+  else {
+    
+  }
+}
+
 void freeBstTree(PBstElement el) {
   if(el != NULL) {
     freeBstTree(el->left);
@@ -188,7 +206,7 @@ void freeBstTree(PBstElement el) {
   }
 }
 
-PBstElement searchBstTree(PBstElement root, int key) {
+PBstElement searchBstTree(PBstElement &root, int key) {
   PBstElement el = root;
 
   while(el != NULL && el->key != key) {
@@ -207,6 +225,27 @@ void printBstTree(PBstElement el) {
     std::cout << el->key << " ";
     printBstTree(el->right);
   }
+}
+
+/*
+ * AVL implementation
+ *
+ */
+
+void initAvlTree(int a[], int size);
+int qsortCmp(const void *a, const void *b);
+
+int qsortCmp(const void *a, const void *b) {
+  int returnCode;
+  
+  if(*(int*)a < *(int*)b)
+    returnCode = -1;
+  else if(*(int*)a > *(int*)b)
+    returnCode = 1;
+  else if(*(int*)a == *(int*)b)
+    returnCode = 0;
+
+  return returnCode;
 }
 
 /*
@@ -277,22 +316,8 @@ void printArray(int a[], int size) {
 //main stuff
 int main() {
   srand(time(NULL));
-  int *a = generateData(20);
 
-  PBstElement root = initBstTree(a, 20);
-  printBstTree(root);
-  
-  int val;
-  std::cout << "\n\nWhat do you wanna search?\n";
-  std::cin >> val;
-
-  PBstElement e = searchBstTree(root, val);
-  if(e != NULL)
-    std::cout << "Found";
-  
-  freeBstTree(root);
-  delete[] a;
-  //printBstTree(root);
+  /* shit goes here */
   
   return 0;
 }

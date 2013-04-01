@@ -308,22 +308,42 @@ void deleteAvlTree(AVLNode *root) {
   delete root;
 }
 
-//USUWANIE JEST GŁUPIE! :D will code later
-void removeNodeAvlTree(AVLNode *root, int value) {
-  while(root != nullptr && root->value != value) {
-    if (value < root->value) root=root->left;
-    else root=root->right;
-  }
+AVLNode *findMaxAvlTree(AVLNode *root) {
+  while(root->right != nullptr) root=root->right;
+  return root;
+}
 
-  if(root==nullptr) return;
 
-  if(root->parent->left==root) root->parent->left=nullptr;
-  else root->parent->right=nullptr;
+AVLNode *removeNodeAvlTree(AVLNode *root, int value) {
   
-  if(root->left==nullptr && root->right==nullptr){
-    //...
-  }
+  AVLNode *node = searchAvlTree(root, value), *parent, **parentLink;
+  if(node==nullptr) return root;
+  //why would I do that? :<
+  parent = node->parent;
+  if(parent != nullptr) parentLink = (parent->left==root)?&(parent->left):&(parent->right);
+  else parentLink=nullptr;
 
+  if(node->left == nullptr && node->right == nullptr) { //leaf!
+    if(parent != nullptr) *parentLink=nullptr;
+    else root=nullptr;
+    delete node;
+  }
+  else if(node->left != nullptr && node->right != nullptr) { //both children
+    AVLNode *newPope = findMaxAvlTree(node->left);
+    node->value = newPope->value;
+    newPope->parent->right = nullptr;
+    delete newPope;
+  }
+  else if(node->left != nullptr || node->right != nullptr) { //one child ()
+    AVLNode *child = (node->left!=nullptr)?node->left:node->right;
+    child->parent = node->parent;
+    
+    if(parent != nullptr) *parentLink=child;
+    else root=nullptr;
+    
+    delete node;
+  }
+  return root;
 }
 
 void inOrderAvlTree(AVLNode *node, int *arr, int *i) {
@@ -332,7 +352,7 @@ void inOrderAvlTree(AVLNode *node, int *arr, int *i) {
   if(node->right != nullptr) inOrderAvlTree(node->right, arr, i);
 }
 
-AVLNode *insertAfterpartyAvlTree(AVLNode *root, int num) {
+AVLNode *InOutAfterpartyAvlTree(AVLNode *root, int num) {
   int *array = new int[num], i = 0;
   //in order - left key right
   inOrderAvlTree(root, array, &i);
@@ -430,12 +450,20 @@ int main() {
   srand(time(NULL));
 
   /* shit goes here */
-  int* arr = generateData(100);
-  AVLNode* r = initAvlTree(arr, 100);
-  insertAvlTree(r, 326);
-  r = insertAfterpartyAvlTree(r, 101);
+  int* arr = generateData(10);
+  AVLNode* r = initAvlTree(arr, 10);
+  printAvlTree(r); 
+  std::cout << std::endl << "Dodaj wartosc: ";
+  int a,b;
+  std::cin >> a;
+  insertAvlTree(r, a);
+  InOutAfterpartyAvlTree(r, 11);
+  std::cout << "Usun wartosc: ";
+  std::cin >> b;
+  removeNodeAvlTree(r, b);
+  InOutAfterpartyAvlTree(r, 10);
   dotPrintTree(r); //$ dot -Tpng -Oavl.png avl.dot
-
+  deleteAvlTree(r);
   delete[] arr;
   
   return 0;

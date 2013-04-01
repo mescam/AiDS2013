@@ -271,6 +271,75 @@ AVLNode *initAvlTree(int a[], int size) {
   return initAvlTreeBounded(a, size, 0, size-1);
 }
 
+AVLNode *searchAvlTree(AVLNode *root, int value) {
+  AVLNode *node = root;
+
+  while(node != nullptr && node->value != value) {
+    if(value < node->value)
+      node = node->left;
+    else
+      node = node->right;
+  }
+  //sorry, Marcin :D
+  return node;
+}
+
+AVLNode *insertAvlTree(AVLNode *root, int value) {
+  AVLNode *node = new AVLNode;
+  node->value = value;
+  node->left = node->right = node->parent = nullptr;
+
+  while((root->left != nullptr && root->value > node->value ) || (root->right != nullptr && root->value < node->value)) {
+    if(root->value > node->value) root=root->left;
+    else root=root->right;
+  } //they see me codin', they hatin'
+
+  if(node->value > root->value) root->right = node;
+  else root->left = node;
+
+  node->parent = root;
+  return node;
+}
+
+void deleteAvlTree(AVLNode *root) {
+  //post order - left right key
+  if(root->left != nullptr) deleteAvlTree(root->left);
+  if(root->right != nullptr) deleteAvlTree(root->right);
+  delete root;
+}
+
+//USUWANIE JEST GŁUPIE! :D will code later
+void removeNodeAvlTree(AVLNode *root, int value) {
+  while(root != nullptr && root->value != value) {
+    if (value < root->value) root=root->left;
+    else root=root->right;
+  }
+
+  if(root==nullptr) return;
+
+  if(root->parent->left==root) root->parent->left=nullptr;
+  else root->parent->right=nullptr;
+  
+  if(root->left==nullptr && root->right==nullptr){
+    //...
+  }
+
+}
+
+void inOrderAvlTree(AVLNode *node, int *arr, int *i) {
+  if(node->left != nullptr) inOrderAvlTree(node->left, arr, i);
+  arr[(*i)++] = node->value;
+  if(node->right != nullptr) inOrderAvlTree(node->right, arr, i);
+}
+
+AVLNode *insertAfterpartyAvlTree(AVLNode *root, int num) {
+  int *array = new int[num], i = 0;
+  //in order - left key right
+  inOrderAvlTree(root, array, &i);
+  deleteAvlTree(root);
+  return initAvlTree(array, num);
+}
+
 int qsortCmp(const void *a, const void *b) {
   
   if(*(int*)a < *(int*)b)
@@ -328,15 +397,46 @@ void printArray(int a[], int size) {
     std::cout << a[i] << " ";
 }
 
+void dotPrintPart(AVLNode *node, std::ofstream *out){
+  static int dot = 0;
+  if(node->left != nullptr){
+    *out << node->value << " -> " << node->left->value << ";"  << std::endl;
+    dotPrintPart(node->left, out);
+  }else{
+    *out << "null"<<dot<<" [shape=point];" <<std::endl;
+    *out << node->value << " -> null"<<dot << ";"  << std::endl;
+    dot++;
+  }
+  if(node->right != nullptr){
+    *out << node->value << " -> " << node->right->value << ";" <<std::endl;
+    dotPrintPart(node->right, out);
+  }else{
+    *out << "null"<<dot<<" [shape=point];" <<std::endl;
+    *out << node->value << " -> null"<< dot << ";"  << std::endl;
+    dot++;
+  }
+}
+
+void dotPrintTree(AVLNode *root) {
+  std::ofstream out("avl.dot");
+  out << "digraph AVL {" << std::endl;
+  dotPrintPart(root, &out);
+  out << "}";
+  out.close();
+}
+
 //main stuff
 int main() {
   srand(time(NULL));
 
   /* shit goes here */
-  int* arr = generateData(10);
-  AVLNode* r = initAvlTree(arr, 10);
-  printAvlTree(r);
+  int* arr = generateData(100);
+  AVLNode* r = initAvlTree(arr, 100);
+  insertAvlTree(r, 326);
+  r = insertAfterpartyAvlTree(r, 101);
+  dotPrintTree(r); //$ dot -Tpng -Oavl.png avl.dot
 
+  delete[] arr;
   
   return 0;
 }

@@ -1,0 +1,30 @@
+digraph Tree {
+230 -> 112;
+112 -> 45;
+null11 [shape=point];
+45 -> null11;
+null12 [shape=point];
+45 -> null12;
+112 -> 141;
+null13 [shape=point];
+141 -> null13;
+141 -> 151;
+null14 [shape=point];
+151 -> null14;
+null15 [shape=point];
+151 -> null15;
+230 -> 332;
+332 -> 289;
+null16 [shape=point];
+289 -> null16;
+null17 [shape=point];
+289 -> null17;
+332 -> 373;
+null18 [shape=point];
+373 -> null18;
+373 -> 409;
+null19 [shape=point];
+409 -> null19;
+null20 [shape=point];
+409 -> null20;
+}

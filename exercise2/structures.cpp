@@ -18,6 +18,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <climits>
 #include <cstdlib>
 #include <cstdio>
@@ -120,38 +121,27 @@ void printList(PListElement &head) {
 }
 
 /*
- * BST implementation
+ * Common tree operations
  *
  */
 
-struct BstElement {
+struct TreeElement {
   int key;
-  BstElement *left;
-  BstElement *right;
-  BstElement *parent;
+  TreeElement *left, *right, *parent;
 };
 
-typedef BstElement* PBstElement;
+typedef TreeElement* PTreeElement;
 
-PBstElement initBstTree(int [], int);
-PBstElement initBstElement(int);
-void insertBstElement(PBstElement &, int);
-void destroyBstElement(PBstElement &, int);
-PBstElement searchBstTree(PBstElement &, int);
-void printBstTree(PBstElement);
-void freeBstTree(PBstElement);
+PTreeElement initTreeElement(int);
+void insertTreeElement(PTreeElement &, int);
+PTreeElement maxTreeElement(PTreeElement el);
+PTreeElement removeTreeElement(PTreeElement, int);
+PTreeElement searchTree(PTreeElement &, int);
+void printTree(PTreeElement);
+void freeTree(PTreeElement);
 
-PBstElement initBstTree(int a[], int size) {
-  PBstElement root = NULL;
-  
-  for(int i = 0; i < size; i++)
-    insertBstElement(root, a[i]);
-
-  return root;
-}
-
-PBstElement initBstElement(int key) {
-  PBstElement el = new BstElement;
+PTreeElement initTreeElement(int key) {
+  PTreeElement el = new TreeElement;
   el->key = key;
   el->right = NULL;
   el->left = NULL;
@@ -160,10 +150,10 @@ PBstElement initBstElement(int key) {
   return el;
 }
 
-void insertBstElement(PBstElement &root, int key) {
-  PBstElement toParent = NULL;
-  PBstElement el = root;
-  PBstElement toIns = initBstElement(key);
+void insertTreeElement(PTreeElement &root, int key) {
+  PTreeElement toParent = NULL;
+  PTreeElement el = root;
+  PTreeElement toIns = initTreeElement(key);
 
   while(el != NULL) {
     toParent = el;
@@ -184,30 +174,64 @@ void insertBstElement(PBstElement &root, int key) {
     toParent->right = toIns;
 }
 
-void destroyBstElement(PBstElement &root, int key) {
-  PBstElement el = searchBstTree(root, key);
+PTreeElement maxTreeElement(PTreeElement el) {
+  while(el->right != NULL)
+    el = el->right;
 
-  if(el->left && el->right) {
-    std::cout << "both children";
-  }
-  else if(el->left) {
-    std::cout << "one child";
-  }
-  else {
-    
-  }
+  return el;
 }
 
-void freeBstTree(PBstElement el) {
+PTreeElement removeTreeElement(PTreeElement root, int key) {
+  PTreeElement el = searchTree(root, key), parent, *parentLink;
+
+  if(el == NULL)
+    return root;
+
+  parent = el->parent;
+  if(parent != NULL)
+    parentLink = (parent->left == root) ? &(parent->left) : &(parent->right);
+  else
+    parentLink = NULL;
+
+  if(el->left == NULL && el->right == NULL) {
+    if(parent != NULL)
+      *parentLink = NULL;
+    else
+      root = NULL;
+    delete el;
+  }
+  else if(el->left != NULL && el->right != NULL) {
+    PTreeElement newPope = maxTreeElement(el->left);
+
+    el->key = newPope->key;
+    newPope->parent->right = NULL;
+    delete newPope;
+  }
+  else if(el->left != NULL || el->right != NULL) {
+    PTreeElement child = (el->left != NULL) ? el->left : el->right;
+    child->parent = el->parent;
+
+    if(parent != NULL)
+      *parentLink = child;
+    else
+      root = NULL;
+
+    delete el;
+  }  
+
+  return root;
+}
+
+void freeTree(PTreeElement el) {
   if(el != NULL) {
-    freeBstTree(el->left);
-    freeBstTree(el->right);
+    freeTree(el->left);
+    freeTree(el->right);
     delete el;
   }
 }
 
-PBstElement searchBstTree(PBstElement &root, int key) {
-  PBstElement el = root;
+PTreeElement searchTree(PTreeElement &root, int key) {
+  PTreeElement el = root;
 
   while(el != NULL && el->key != key) {
     if(key < el->key)
@@ -219,149 +243,62 @@ PBstElement searchBstTree(PBstElement &root, int key) {
   return el;
 }
 
-void printBstTree(PBstElement el) {
+void printTree(PTreeElement el) {
   if(el != NULL) {
-    printBstTree(el->left);
+    printTree(el->left);
     std::cout << el->key << " ";
-    printBstTree(el->right);
+    printTree(el->right);
   }
 }
 
 /*
- * AVL implementation
- *
+ * BST specific
  */
-struct AVLNode {
-  int value, ratio;
-  AVLNode *parent, *left, *right;
-};
 
-AVLNode *initAvlTree(int a[], int size);
-int qsortCmp(const void *a, const void *b);
-//AVLNode *initAvlTreeBounded(int a[], int size, int left, int right, AVLNode *root);
+PTreeElement initBstTree(int [], int);
 
-
-AVLNode *initAvlTreeBounded(int a[], int size, int left, int right) {
-  int key = (left+right)/2;
-
-  //printf("Wywolanie l=%d r=%d k=%d\n",left,right,key);
+PTreeElement initBstTree(int a[], int size) {
+  PTreeElement root = NULL;
   
-  AVLNode *root = new AVLNode;
-  root->left = nullptr; 
-  root->right = nullptr;
-  root->parent = nullptr;
-  root->value = a[key];
-
-  if(left<=(key-1)) {
-    root->left = initAvlTreeBounded(a, size, left, key-1);
-    root->left->parent = root;
-  }
-  if((key+1)<=right) {
-    root->right = initAvlTreeBounded(a, size, key+1, right);
-    root->right->parent = root;
-  }
+  for(int i = 0; i < size; i++)
+    insertTreeElement(root, a[i]);
 
   return root;
 }
 
-AVLNode *initAvlTree(int a[], int size) {
-  //AVLNode *root = nullptr;
+/*
+ * AVL specific
+ */
+
+PTreeElement initAvlTreeBounded(int a[], int size, int left, int right);
+PTreeElement initAvlTree(int a[], int size);
+int qsortCmp(const void *a, const void *b);
+
+PTreeElement initAvlTreeBounded(int a[], int size, int left, int right) {
+  int part = (left + right) / 2;
+
+  PTreeElement el = initTreeElement(a[part]);
+
+  if(left <= (part - 1)) {
+    el->left = initAvlTreeBounded(a, size, left, part - 1);
+    el->left->parent = el;
+  }
+
+  if((part + 1) <= right) {
+    el->right = initAvlTreeBounded(a, size, part + 1, right);
+    el->right->parent = el;
+  }
+
+  return el;
+}
+
+PTreeElement initAvlTree(int a[], int size) {
   std::qsort(a, size, sizeof(int), qsortCmp);
 
-  return initAvlTreeBounded(a, size, 0, size-1);
-}
-
-AVLNode *searchAvlTree(AVLNode *root, int value) {
-  AVLNode *node = root;
-
-  while(node != nullptr && node->value != value) {
-    if(value < node->value)
-      node = node->left;
-    else
-      node = node->right;
-  }
-  //sorry, Marcin :D
-  return node;
-}
-
-AVLNode *insertAvlTree(AVLNode *root, int value) {
-  AVLNode *node = new AVLNode;
-  node->value = value;
-  node->left = node->right = node->parent = nullptr;
-
-  while((root->left != nullptr && root->value > node->value ) || (root->right != nullptr && root->value < node->value)) {
-    if(root->value > node->value) root=root->left;
-    else root=root->right;
-  } //they see me codin', they hatin'
-
-  if(node->value > root->value) root->right = node;
-  else root->left = node;
-
-  node->parent = root;
-  return node;
-}
-
-void deleteAvlTree(AVLNode *root) {
-  //post order - left right key
-  if(root->left != nullptr) deleteAvlTree(root->left);
-  if(root->right != nullptr) deleteAvlTree(root->right);
-  delete root;
-}
-
-AVLNode *findMaxAvlTree(AVLNode *root) {
-  while(root->right != nullptr) root=root->right;
-  return root;
-}
-
-
-AVLNode *removeNodeAvlTree(AVLNode *root, int value) {
-  
-  AVLNode *node = searchAvlTree(root, value), *parent, **parentLink;
-  if(node==nullptr) return root;
-  //why would I do that? :<
-  parent = node->parent;
-  if(parent != nullptr) parentLink = (parent->left==root)?&(parent->left):&(parent->right);
-  else parentLink=nullptr;
-
-  if(node->left == nullptr && node->right == nullptr) { //leaf!
-    if(parent != nullptr) *parentLink=nullptr;
-    else root=nullptr;
-    delete node;
-  }
-  else if(node->left != nullptr && node->right != nullptr) { //both children
-    AVLNode *newPope = findMaxAvlTree(node->left);
-    node->value = newPope->value;
-    newPope->parent->right = nullptr;
-    delete newPope;
-  }
-  else if(node->left != nullptr || node->right != nullptr) { //one child ()
-    AVLNode *child = (node->left!=nullptr)?node->left:node->right;
-    child->parent = node->parent;
-    
-    if(parent != nullptr) *parentLink=child;
-    else root=nullptr;
-    
-    delete node;
-  }
-  return root;
-}
-
-void inOrderAvlTree(AVLNode *node, int *arr, int *i) {
-  if(node->left != nullptr) inOrderAvlTree(node->left, arr, i);
-  arr[(*i)++] = node->value;
-  if(node->right != nullptr) inOrderAvlTree(node->right, arr, i);
-}
-
-AVLNode *InOutAfterpartyAvlTree(AVLNode *root, int num) {
-  int *array = new int[num], i = 0;
-  //in order - left key right
-  inOrderAvlTree(root, array, &i);
-  deleteAvlTree(root);
-  return initAvlTree(array, num);
+  return initAvlTreeBounded(a, size, 0, size - 1);
 }
 
 int qsortCmp(const void *a, const void *b) {
-  
   if(*(int*)a < *(int*)b)
     return -1;
   else if(*(int*)a > *(int*)b)
@@ -372,17 +309,152 @@ int qsortCmp(const void *a, const void *b) {
   return 0;
 }
 
+
+// /*
+//  * AVL implementation
+//  *
+//  */
+// struct AVLNode {
+//   int value, ratio;
+//   AVLNode *parent, *left, *right;
+// };
+
+// AVLNode *initAvlTree(int a[], int size);
+// int qsortCmp(const void *a, const void *b);
+// //AVLNode *initAvlTreeBounded(int a[], int size, int left, int right, AVLNode *root);
+
+
+// AVLNode *initAvlTreeBounded(int a[], int size, int left, int right) {
+//   int key = (left+right)/2;
+
+//   //printf("Wywolanie l=%d r=%d k=%d\n",left,right,key);
+  
+//   AVLNode *root = new AVLNode;
+//   root->left = nullptr; 
+//   root->right = nullptr;
+//   root->parent = nullptr;
+//   root->value = a[key];
+
+//   if(left<=(key-1)) {
+//     root->left = initAvlTreeBounded(a, size, left, key-1);
+//     root->left->parent = root;
+//   }
+//   if((key+1)<=right) {
+//     root->right = initAvlTreeBounded(a, size, key+1, right);
+//     root->right->parent = root;
+//   }
+
+//   return root;
+// }
+
+// AVLNode *initAvlTree(int a[], int size) {
+//   //AVLNode *root = nullptr;
+//   std::qsort(a, size, sizeof(int), qsortCmp);
+
+//   return initAvlTreeBounded(a, size, 0, size-1);
+// }
+
+// AVLNode *searchAvlTree(AVLNode *root, int value) {
+//   AVLNode *node = root;
+
+//   while(node != nullptr && node->value != value) {
+//     if(value < node->value)
+//       node = node->left;
+//     else
+//       node = node->right;
+//   }
+//   //sorry, Marcin :D
+//   return node;
+// }
+
+// AVLNode *insertAvlTree(AVLNode *root, int value) {
+//   AVLNode *node = new AVLNode;
+//   node->value = value;
+//   node->left = node->right = node->parent = nullptr;
+
+//   while((root->left != nullptr && root->value > node->value ) || (root->right != nullptr && root->value < node->value)) {
+//     if(root->value > node->value) root=root->left;
+//     else root=root->right;
+//   } //they see me codin', they hatin'
+
+//   if(node->value > root->value) root->right = node;
+//   else root->left = node;
+
+//   node->parent = root;
+//   return node;
+// }
+
+// void deleteAvlTree(AVLNode *root) {
+//   //post order - left right key
+//   if(root->left != nullptr) deleteAvlTree(root->left);
+//   if(root->right != nullptr) deleteAvlTree(root->right);
+//   delete root;
+// }
+
+// AVLNode *findMaxAvlTree(AVLNode *root) {
+//   while(root->right != nullptr) root=root->right;
+//   return root;
+// }
+
+
+// AVLNode *removeNodeAvlTree(AVLNode *root, int value) {
+  
+//   AVLNode *node = searchAvlTree(root, value), *parent, **parentLink;
+//   if(node==nullptr) return root;
+//   //why would I do that? :<
+//   parent = node->parent;
+//   if(parent != nullptr) parentLink = (parent->left==root)?&(parent->left):&(parent->right);
+//   else parentLink=nullptr;
+
+//   if(node->left == nullptr && node->right == nullptr) { //leaf!
+//     if(parent != nullptr) *parentLink=nullptr;
+//     else root=nullptr;
+//     delete node;
+//   }
+//   else if(node->left != nullptr && node->right != nullptr) { //both children
+//     AVLNode *newPope = findMaxAvlTree(node->left);
+//     node->value = newPope->value;
+//     newPope->parent->right = nullptr;
+//     delete newPope;
+//   }
+//   else if(node->left != nullptr || node->right != nullptr) { //one child ()
+//     AVLNode *child = (node->left!=nullptr)?node->left:node->right;
+//     child->parent = node->parent;
+    
+//     if(parent != nullptr) *parentLink=child;
+//     else root=nullptr;
+    
+//     delete node;
+//   }
+//   return root;
+// }
+
+// void inOrderAvlTree(AVLNode *node, int *arr, int *i) {
+//   if(node->left != nullptr) inOrderAvlTree(node->left, arr, i);
+//   arr[(*i)++] = node->value;
+//   if(node->right != nullptr) inOrderAvlTree(node->right, arr, i);
+// }
+
+// AVLNode *InOutAfterpartyAvlTree(AVLNode *root, int num) {
+//   int *array = new int[num], i = 0;
+//   //in order - left key right
+//   inOrderAvlTree(root, array, &i);
+//   deleteAvlTree(root);
+//   return initAvlTree(array, num);
+// }
+
+
 /*
  * All kind of utils
  */
 int* generateData(int n);
 void printArray(int [], int);
 
-void printAvlTree(AVLNode *node){
-  std::cout << node->value << " ";
-  if(node->left != nullptr) printAvlTree(node->left);
-  if(node->right != nullptr) printAvlTree(node->right);
-}
+// void printAvlTree(AVLNode *node){
+//   std::cout << node->value << " ";
+//   if(node->left != nullptr) printAvlTree(node->left);
+//   if(node->right != nullptr) printAvlTree(node->right);
+//}
 
 int* generateData(int n) {
   const int howMuch = 5 * n;
@@ -417,28 +489,30 @@ void printArray(int a[], int size) {
     std::cout << a[i] << " ";
 }
 
-void dotPrintPart(AVLNode *node, std::ofstream *out){
+void dotPrintPart(PTreeElement node, std::ofstream *out){
   static int dot = 0;
   if(node->left != nullptr){
-    *out << node->value << " -> " << node->left->value << ";"  << std::endl;
+    *out << node->key << " -> " << node->left->key << ";"  << std::endl;
     dotPrintPart(node->left, out);
   }else{
     *out << "null"<<dot<<" [shape=point];" <<std::endl;
-    *out << node->value << " -> null"<<dot << ";"  << std::endl;
+    *out << node->key << " -> null"<<dot << ";"  << std::endl;
     dot++;
   }
   if(node->right != nullptr){
-    *out << node->value << " -> " << node->right->value << ";" <<std::endl;
+    *out << node->key << " -> " << node->right->key << ";" <<std::endl;
     dotPrintPart(node->right, out);
   }else{
     *out << "null"<<dot<<" [shape=point];" <<std::endl;
-    *out << node->value << " -> null"<< dot << ";"  << std::endl;
+    *out << node->key << " -> null"<< dot << ";"  << std::endl;
     dot++;
   }
 }
 
-void dotPrintTree(AVLNode *root) {
-  std::ofstream out("avl.dot");
+void dotPrintTree(PTreeElement root, int number) {
+  std::stringstream ss;
+  ss << "avl" << number << ".dot";
+  std::ofstream out(ss.str());
   out << "digraph AVL {" << std::endl;
   dotPrintPart(root, &out);
   out << "}";
@@ -449,27 +523,35 @@ void dotPrintTree(AVLNode *root) {
 int main() {
   srand(time(NULL));
 
+  int *arr = generateData(30);
+  PTreeElement root = initBstTree(arr, 30);
+  printTree(root);
+  int rem;
+  std::cin >> rem;
+  removeTreeElement(root,rem);
+//  insertTreeElement(root, 50);
   /* shit goes here */
-  int* arr = generateData(10);
-  AVLNode* r = initAvlTree(arr, 10);
-  printAvlTree(r); 
-  std::cout << std::endl << "Dodaj wartosc: ";
-  int a,b;
-  std::cin >> a;
-  insertAvlTree(r, a);
-  InOutAfterpartyAvlTree(r, 11);
-  std::cout << "Usun wartosc: ";
-  std::cin >> b;
-  removeNodeAvlTree(r, b);
-  InOutAfterpartyAvlTree(r, 10);
-  dotPrintTree(r); //$ dot -Tpng -Oavl.png avl.dot
-  deleteAvlTree(r);
+  // int* arr = generateData(10);
+  // AVLNode* r = initAvlTree(arr, 10);
+  // printAvlTree(r); 
+  // std::cout << std::endl << "Dodaj wartosc: ";
+  // int a,b;
+  // std::cin >> a;
+  // insertAvlTree(r, a);
+  // InOutAfterpartyAvlTree(r, 11);
+  // std::cout << "Usun wartosc: ";
+  // std::cin >> b;
+  // removeNodeAvlTree(r, b);
+  // InOutAfterpartyAvlTree(r, 10);
+  // dotPrintTree(r); //$ dot -Tpng -Oavl.png avl.dot
+  // deleteAvlTree(r);
+  // delete[] arr;
+  dotPrintTree(root,1);
+  freeTree(root);
+//  freeTree(root);
   delete[] arr;
   
   return 0;
 }
 
 /* vim: set ts=2 sw=2 tw=0 et :*/
-
-
-

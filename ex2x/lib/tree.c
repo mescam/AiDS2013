@@ -92,9 +92,14 @@ int tree_height(tree_element *el) {
 }
 
 // do not touch, do not hate, it just works
-void tree_remove(tree_element **root, int key) {
+void tree_remove(tree_element **root, int key, int *success) {
   tree_element *to_del, *temp, *el = tree_search(*root, key);
 
+  if(el == NULL) {
+    *success = 0;
+    return;
+  }
+  *success = 1;
   if(el->left == NULL || el->right == NULL)
     to_del = el;
   else

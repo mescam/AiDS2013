@@ -69,6 +69,7 @@ void list_remove(list_element *el, int key) {
       free(to_del);
       break;
     }
+    el = el->next; //rly Marcin, rly?! 
   }
 }
 

@@ -30,3 +30,5 @@ test:	all
 dot: all
 	./scripts/gen-dot.sh
 
+graphs:
+	gnuplot ./scripts/plot

@@ -11,6 +11,7 @@ tree_element* tree_search(tree_element* root, int key);
 tree_element* tree_min(tree_element* root);
 tree_element* tree_max(tree_element* root);
 tree_element* tree_succ(tree_element* el);
+int tree_height(tree_element *root);
 void tree_insert(tree_element** root, int key);
 void tree_remove(tree_element** root, int key);
 void tree_print(tree_element* root);

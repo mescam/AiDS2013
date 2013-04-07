@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/param.h> // MAX macro defined here
 #include "tree.h"
 
 tree_element* tree_init(int *arr, int size) {
@@ -56,7 +57,7 @@ tree_element* tree_search(tree_element *el, int key) {
   return el;
 }
 
-tree_element* tree_min(tree_element *el) {
+tree_element* tree_min(tree_element* el) {
   while(el->left != NULL)
     el = el->left;
 
@@ -81,6 +82,13 @@ tree_element* tree_succ(tree_element* el) {
   }
 
   return succ;
+}
+
+int tree_height(tree_element *el) {
+  if(el == NULL)
+    return -1;
+
+  return MAX(tree_height(el->left), tree_height(el->right)) + 1;
 }
 
 // do not touch, do not hate, it just works

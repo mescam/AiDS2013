@@ -31,7 +31,7 @@ void auto_test_create(int n, double results[], test_set *set) {
 
   fprintf(stdout, "avl\n");
   clock_gettime(CLOCK_REALTIME, &begin);
-  set->avl = tree_avl_init(array, n);
+  set->avl = tree_avl_init(array, n, 1);
   clock_gettime(CLOCK_REALTIME, &end);
   results[2] = timespec_to_miliseconds(&begin, &end);
 

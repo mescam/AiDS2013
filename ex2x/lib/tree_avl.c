@@ -20,8 +20,9 @@ tree_element* tree_avl_init_rec(int *arr, int left, int right) {
   return el;  
 }
 
-tree_element* tree_avl_init(int *arr, int size) {
-  qsort(arr, size, sizeof(int), qsort_cmp);
+tree_element* tree_avl_init(int *arr, int size, int first) {
+  if(first == 1) 
+    qsort(arr, size, sizeof(int), qsort_cmp);
   return tree_avl_init_rec(arr, 0, size - 1);
 }
 
@@ -30,7 +31,7 @@ void tree_avl_rebuild(tree_element **root, const int size) {
 
   tree_to_array(*root, arr, &i);
   tree_free(*root);
-  *root = tree_avl_init(arr, size);
+  *root = tree_avl_init(arr, size, 0);
 }
 
 int qsort_cmp(const void *a, const void *b) {

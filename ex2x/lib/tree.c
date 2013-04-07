@@ -70,50 +70,48 @@ tree_element* tree_max(tree_element* el) {
   return el;
 }
 
+tree_element* tree_succ(tree_element* el) {
+  if(el->right != NULL)
+    return tree_min(el->right);
+
+  tree_element* succ = el->parent;
+  while(succ != NULL && el == succ->right) {
+    el = succ;
+    succ = succ->parent;
+  }
+
+  return succ;
+}
+
 // do not touch, do not hate, it just works
 void tree_remove(tree_element **root, int key) {
-  tree_element *to_del = tree_search(*root, key);
+  tree_element *to_del, *temp, *el = tree_search(*root, key);
 
-  if(to_del == NULL)
-    return;
-
-  tree_element *parent, **parent_side;
-  if(to_del->parent != NULL) {
-    parent = to_del->parent;
-    parent_side = (parent->left == to_del) ? &(parent->left) : &(parent->right);
-  }
+  if(el->left == NULL || el->right == NULL)
+    to_del = el;
   else
-    parent = NULL;
-      
-  if(to_del->left == NULL && to_del->right == NULL) {
-    if(parent != NULL)
-      *parent_side = NULL;
-    else
-      *root = NULL;
-    
-    free(to_del);
-  }
-  else if(to_del->left != NULL && to_del->right != NULL) {
-    tree_element *to_replace = tree_max(to_del->left);
+    to_del = tree_succ(el);
 
-    tree_element **very_parent_side;
+  if(to_del->left != NULL)
+    temp = to_del->left;
+  else
+    temp = to_del->right;
 
-    very_parent_side = (to_replace->parent->left == to_replace) ? &(to_replace->parent->left) : &(to_replace->parent->right);
-    
-    to_del->key = to_replace->key;
+  if(temp != NULL)
+    temp->parent = to_del->parent;
+  
+  tree_element *par = to_del->parent;
+  if(par == NULL)
+    *root = temp;
+  else if(to_del == par->left)
+    par->left = temp;
+  else
+    par->right = temp;
 
-    *very_parent_side = NULL;
+  if(to_del != el)
+    el->key = to_del->key;
 
-    free(to_replace);
-  }
-  else {
-    tree_element *to_replace = (to_del->left != NULL) ? to_del->left :to_del->right;
-
-    *parent_side = to_replace;
-    to_replace->parent = parent;
-    
-    free(to_del);
-  }
+  free(to_del);
 }
 
 void tree_print(tree_element* root) {

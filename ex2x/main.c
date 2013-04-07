@@ -3,26 +3,20 @@
 #include <time.h>
 #include "lib/tree.h"
 #include "lib/tree_avl.h"
+#include "lib/utils.h"
 
-int main(void) {
+int main(int argc, char **argv) {
   srand(time(NULL));
 
-  int arr[10];
-  for(int i = 0; i < 10; i++)
-    arr[i] = rand() % 500;
+  int *arr = generate_unique_array(50);
 
-  tree_element *root = tree_avl_init(arr,10);
-  tree_print(root);
-  tree_to_file(root, "dot/test1.dot");
-  int rem;
-  scanf("%d",&rem);
-  printf("\n\n");
-  tree_remove(&root, rem);
-  tree_to_file(root, "dot/test2.dot");
-  tree_avl_rebuild(&root, 9);
-  tree_to_file(root, "dot/test3.dot");
+  tree_element *root = tree_avl_init(arr,50);
+  tree_to_file(root, "dot/test1.dot");  
+  tree_remove(&root, 1);
+  tree_remove(&root, 2);
+  tree_avl_rebuild(&root, 48);
+  tree_to_file(root, "dot/test2.dot");  
 
-  printf("\n\n");
-
+  free(arr);
   tree_free(root);
 }

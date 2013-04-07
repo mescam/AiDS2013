@@ -1,3 +1,6 @@
+#ifndef TREE_H
+
+#define TREE_H
 #include <stdio.h>
 
 typedef struct tree_element {
@@ -19,3 +22,7 @@ void tree_free(tree_element* root);
 void tree_to_array(tree_element* root, int *arr, int *i);
 void tree_to_dot(tree_element* root, FILE *file);
 void tree_to_file(tree_element* root, const char *file_name);
+
+
+#endif /* end of include guard: TREE_H */
+

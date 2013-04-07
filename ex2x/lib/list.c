@@ -3,6 +3,15 @@
 #include <limits.h>
 #include "list.h"
 
+list_element* list_init_from_array(int n, int* array) {
+  list_element *head = list_init();
+  int i;
+  for (i = 0; i < n; i++) {
+    list_insert(head, array[i]);
+  }
+  return head;
+}
+
 list_element* list_alloc_el(int key) {
   list_element* el = malloc(sizeof(list_element));
   el->key = key;

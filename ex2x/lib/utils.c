@@ -5,8 +5,8 @@
 int* generate_unique_array(int size) {
   int* arr = (int*)calloc(size, sizeof(int));
 
-  for(int i = 0; i < size; i++)
-    arr[i] = i + 1;
+  for(int i = 1; i <= size; i++)
+    arr[i-1] = 2*i;
 
   for(int i = size - 1; i >= 1; i--) {
     int to_shuffle = rand() % i + 1;

@@ -16,5 +16,13 @@ int main(int argc, char **argv) {
   
   free(arr);
   tree_free(root);*/
-  auto_test_flow();
+  if(argc < 2) return 1;
+
+  if(argv[1][0] == 'a')
+  	auto_test_flow();
+  else
+  	;//paste your func call here.
+
+  return 0;
+
 }

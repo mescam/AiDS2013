@@ -4,20 +4,23 @@ set grid
 set title "Zależność czasu tworzenia struktury od liczby elementów"
 set xlabel "Liczba elementów"
 set ylabel "Czas wykonywania [ms]"
+#set yrange [0:0.015]
 set out 'tests/graphs/result1.svg'
-plot 'tests/results_1.txt' using 1:2 title 'Lista' smooth csplines, \
+plot 'tests/results_1.txt' using ($1/10):2 title 'Lista' smooth csplines, \
 'tests/results_1.txt' u 1:3 t 'BST' smooth csplines, \
 'tests/results_1.txt' u 1:4 t 'AVL' smooth csplines
 
 set title "Dodawanie do struktury n/100 elementów"
 set out 'tests/graphs/result2.svg'
-plot 'tests/results_3.txt' using 1:2 title 'Lista' smooth csplines, \
+#set yrange [0:0.0002]
+plot 'tests/results_3.txt' using ($1/10):2 title 'Lista' smooth csplines, \
 'tests/results_3.txt' u 1:3 t 'BST' smooth csplines, \
 'tests/results_3.txt' u 1:4 t 'AVL' smooth csplines
 
 set title "Usuwanie ze struktury n/100 elementów"
 set out 'tests/graphs/result3.svg'
-plot 'tests/results_4.txt' using 1:2 title 'Lista' smooth csplines, \
+set yrange [0:0.004]
+plot 'tests/results_4.txt' using ($1/10):2 title 'Lista' smooth csplines, \
 'tests/results_4.txt' u 1:3 t 'BST' smooth csplines, \
 'tests/results_4.txt' u 1:4 t 'AVL' smooth csplines
 

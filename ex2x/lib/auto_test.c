@@ -5,6 +5,7 @@
 #include "tree_avl.h"
 #include "utils.h"
 
+#define TESTS 50
 /**
  * TODO:
  * - add tree height array 
@@ -12,102 +13,127 @@
  * - maybe more DRY?
  */
 
-void auto_test_create(int n, double results[], test_set *set) {
+ void auto_test_create(int n, double results[], test_set set[]) {
   //o, hai.
   struct timespec begin, end;
-  int *array = generate_unique_array(n, 1); //only even numbers.
+  int *array[TESTS], i; 
+  results[0]=results[1]=results[2]=0;
 
-  fprintf(stdout, "list "); fflush(stdout);
-  clock_gettime(CLOCK_REALTIME, &begin);
-  set->list = list_init_from_array(n, array);
-  clock_gettime(CLOCK_REALTIME, &end);
-  results[0] = timespec_to_miliseconds(&begin, &end);
+  for (i = 0; i < TESTS; ++i)
+  {
+    printf("test #%d\n",i);
+    array[i] = generate_unique_array(n, 1);
+    clock_gettime(CLOCK_REALTIME, &begin);
+    set[i].list = list_init_from_array(n/10, array[i]);
+    clock_gettime(CLOCK_REALTIME, &end);
+    results[0] += timespec_to_miliseconds(&begin, &end);
 
-  fprintf(stdout, "bst "); fflush(stdout);
-  clock_gettime(CLOCK_REALTIME, &begin);
-  set->bst = tree_init(array, n);
-  clock_gettime(CLOCK_REALTIME, &end);
-  results[1] = timespec_to_miliseconds(&begin, &end);
+    clock_gettime(CLOCK_REALTIME, &begin);
+    set[i].bst = tree_init(array[i], n);
+    clock_gettime(CLOCK_REALTIME, &end);
+    results[1] += timespec_to_miliseconds(&begin, &end);
 
-  fprintf(stdout, "avl\n");
-  clock_gettime(CLOCK_REALTIME, &begin);
-  set->avl = tree_avl_init(array, n, 1);
-  clock_gettime(CLOCK_REALTIME, &end);
-  results[2] = timespec_to_miliseconds(&begin, &end);
+    clock_gettime(CLOCK_REALTIME, &begin);
+    set[i].avl = tree_avl_init(array[i], n, 1);
+    clock_gettime(CLOCK_REALTIME, &end);
+    results[2] += timespec_to_miliseconds(&begin, &end);
 
-  free(array);
+    free(array[i]);
+  }
+
+  for (i = 0; i < 3; ++i)
+    results[i]/=TESTS;
+
+
   return;
 }
 
 void auto_test_insert(int n, double results[], test_set *set) {
-  int to_insert = n/100, *arr = generate_unique_array(to_insert, 0), i;
+  int to_insert = n/100, *arr, i,j;
   struct timespec begin, end;
+  results[0]=results[1]=results[2]=0;
 
-  //list
-  fprintf(stdout, "list "); fflush(stdout);
-  clock_gettime(CLOCK_REALTIME, &begin);
-  for (i = 0; i < to_insert; i++) {
-    list_insert(set->list, arr[i]);
+  for (i = 0; i < TESTS; ++i)
+  {
+    printf("test #%d\n",i);
+    arr = generate_unique_array(n, 0);
+    //list
+    clock_gettime(CLOCK_REALTIME, &begin);
+    for (j = 0; j < to_insert/10; j++) {
+      list_insert(set[i].list, arr[j]);
+    }
+    clock_gettime(CLOCK_REALTIME, &end);
+    results[0] += timespec_to_miliseconds(&begin, &end);
+
+    //bst
+    clock_gettime(CLOCK_REALTIME, &begin);
+    for (j = 0; j < to_insert/10; j++) {
+      tree_insert(&(set[i].bst), arr[j]);
+    }
+    clock_gettime(CLOCK_REALTIME, &end);
+    results[1] += timespec_to_miliseconds(&begin, &end);
+
+    //avl
+    clock_gettime(CLOCK_REALTIME, &begin);
+    for (j = 0; j < to_insert; j++) {
+      tree_insert(&(set[i].avl), arr[j]);
+    }
+    tree_avl_rebuild(&(set[i].avl),n+to_insert);
+    clock_gettime(CLOCK_REALTIME, &end);
+    results[2] = timespec_to_miliseconds(&begin, &end);
+
+    free(arr); /*arr, you are a pirate!*/
   }
-  clock_gettime(CLOCK_REALTIME, &end);
-  results[0] = timespec_to_miliseconds(&begin, &end);
 
-  //bst
-  fprintf(stdout, "bst "); fflush(stdout);
-  clock_gettime(CLOCK_REALTIME, &begin);
-  for (i = 0; i < to_insert; i++) {
-    tree_insert(&(set->bst), arr[i]);
-  }
-  clock_gettime(CLOCK_REALTIME, &end);
-  results[1] = timespec_to_miliseconds(&begin, &end);
+  for (i = 0; i < 3; ++i)
+    results[i]/=TESTS;
 
-  //avl
-  fprintf(stdout, "avl\n");
-  clock_gettime(CLOCK_REALTIME, &begin);
-  for (i = 0; i < to_insert; i++) {
-    tree_insert(&(set->avl), arr[i]);
-  }
-  tree_avl_rebuild(&(set->avl),n+to_insert);
-  clock_gettime(CLOCK_REALTIME, &end);
-  results[2] = timespec_to_miliseconds(&begin, &end);
-
-  free(arr); /*arr, you are a pirate!*/
+  return;
+  
 }
 
 void auto_test_remove(int n, double results[], test_set *set) {
-  int to_remove = n/100, i, size = n+to_remove, success;
+  int to_remove = n/100, i, size = n+to_remove, success, j;
   int *array = (int*)malloc(sizeof(int)*to_remove);
   struct timespec begin, end;
+  results[0]=results[1]=results[2]=0;
 
   for (i = 0; i < to_remove; i++)
     array[i] = rand()%size;
 
-  //list
-  fprintf(stdout, "list "); fflush(stdout);
-  clock_gettime(CLOCK_REALTIME, &begin);
-  for (i = 0; i < to_remove; i++)
-    list_remove(set->list, array[i]);
-  clock_gettime(CLOCK_REALTIME, &end);
-  results[0] = timespec_to_miliseconds(&begin, &end);
+  for (i = 0; i < TESTS; ++i)
+  {
+    printf("test #%d\n",i);
+    //list
+    clock_gettime(CLOCK_REALTIME, &begin);
+    for (j = 0; j < to_remove/10; j++)
+      list_remove(set[i].list, array[j]);
+    clock_gettime(CLOCK_REALTIME, &end);
+    results[0] += timespec_to_miliseconds(&begin, &end);
 
   //bst
-  fprintf(stdout, "bst "); fflush(stdout);
-  clock_gettime(CLOCK_REALTIME, &begin);
-  for (i = 0; i < to_remove; i++)
-    tree_remove(&(set->avl), array[i], &success);
-  clock_gettime(CLOCK_REALTIME, &end);
-  results[1] = timespec_to_miliseconds(&begin, &end);
+    clock_gettime(CLOCK_REALTIME, &begin);
+    for (j = 0; j < to_remove; j++)
+      tree_remove(&(set[i].avl), array[j], &success);
+    clock_gettime(CLOCK_REALTIME, &end);
+    results[1] += timespec_to_miliseconds(&begin, &end);
 
   //avl
-  fprintf(stdout, "avl \n");
-  clock_gettime(CLOCK_REALTIME, &begin);
-  for (i = 0; i < to_remove; i++) {
-    tree_remove(&(set->avl), array[i], &success);
-    if(success == 1) size--;
+    int size_cpy = size;
+    clock_gettime(CLOCK_REALTIME, &begin);
+    for (j = 0; j < to_remove; j++) {
+      tree_remove(&(set[i].avl), array[j], &success);
+      if(success == 1) size_cpy--;
+    }
+    tree_avl_rebuild(&(set->avl), size_cpy);
+    clock_gettime(CLOCK_REALTIME, &end);
+    results[2] += timespec_to_miliseconds(&begin, &end);
   }
-  tree_avl_rebuild(&(set->avl), size);
-  clock_gettime(CLOCK_REALTIME, &end);
-  results[2] = timespec_to_miliseconds(&begin, &end);
+  
+  for (i = 0; i < 3; ++i)
+  {
+    results[i]/=TESTS;
+  }
 
   free(array);
   return;
@@ -116,9 +142,9 @@ void auto_test_remove(int n, double results[], test_set *set) {
 void auto_test_flow() { 
   FILE *files[4];
   int i;
-  int n[10] = {500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000};
-  double results[10][3];
-  test_set set;
+  int n[11] = {0, 5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000};
+  double results[3];
+  test_set set[TESTS];
 
   for(i = 0; i < 4; i++) {
     char buffer[10];
@@ -130,19 +156,19 @@ void auto_test_flow() {
     }
   }
 
-  for (i = 0; i < 10; i++) {//for each n
+  for (i = 0; i < 11; i++) {//for each n
     fprintf(stdout, "------------------------\nTESTING FOR N=%d\n", n[i]);
     fprintf(stdout, "Creating structures...\n");
-    auto_test_create(n[i], results[i], &set);
-    fprintf(files[0], "%d %f %f %f\n", n[i], results[i][0], results[i][1], results[i][2]);
-    fprintf(stdout, "Calculating trees' height...\n");
-    fprintf(files[1], "%d %d %d\n", n[i], tree_height(set.bst), tree_height(set.avl));
+    auto_test_create(n[i], results, set);
+    fprintf(files[0], "%d %f %f %f\n", n[i], results[0], results[1], results[2]);
+    //fprintf(stdout, "Calculating trees' height...\n");
+    //fprintf(files[1], "%d %d %d\n", n[i], tree_height(set[0].bst), tree_height(set[0].avl));
     fprintf(stdout, "Inserting test...\n");
-    auto_test_insert(n[i], results[i], &set);
-    fprintf(files[2], "%d %f %f %f\n", n[i], results[i][0], results[i][1], results[i][2]);
+    auto_test_insert(n[i], results, set);
+    fprintf(files[2], "%d %f %f %f\n", n[i], results[0], results[1], results[2]);
     fprintf(stdout, "Removing test...\n");
-    auto_test_remove(n[i], results[i], &set);
-    fprintf(files[3], "%d %f %f %f\n", n[i], results[i][0], results[i][1], results[i][2]);
+    auto_test_remove(n[i], results, set);
+    fprintf(files[3], "%d %f %f %f\n", n[i], results[0], results[1], results[2]);
     fprintf(stdout, "Done!\n------------------------\n\n");
   }
 
@@ -150,9 +176,13 @@ void auto_test_flow() {
     fclose(files[i]);
   }
 
-  list_free(set.list);
-  tree_free(set.bst);
-  tree_free(set.avl);
+  for (i = 0; i < TESTS; ++i)
+  {
+    list_free(set[i].list);
+    tree_free(set[i].bst);
+    tree_free(set[i].avl);
+  }
+  
 }
 
 

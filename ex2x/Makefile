@@ -24,7 +24,7 @@ auto_test.o:
 clean:
 	rm -f obj/*.o dot/* ex2
 
-test:	all
+memtest: all
 	valgrind --leak-check=full ./ex2	
 
 dot: all
@@ -32,3 +32,9 @@ dot: all
 
 graphs:
 	gnuplot ./scripts/plot
+
+tests:
+	./ex2 a
+
+cli:
+	./ex2 c

@@ -10,17 +10,9 @@
 void start_party(void);
 void list_party(int size);
 void tree_party(int size, int type);
-int end_party(void);
 
 int main(int argc, char **argv) {
-  /*int *arr = generate_unique_array(30);
-  tree_element* root = tree_init(arr, 30);
-
-  tree_to_file(root, "dot/test1.dot");
-  printf("Height: %d\n", tree_height(root));
-  
-  free(arr);
-  tree_free(root);*/
+  srand(time(NULL));
   if(argc < 2) return 1;
 
   if(argv[1][0] == 'a')
@@ -29,7 +21,6 @@ int main(int argc, char **argv) {
     start_party();
 
   return 0;
-
 }
 
 void start_party() {
@@ -65,7 +56,8 @@ void start_party() {
     tree_party(n, 2);
     break;
   }
-  
+
+  printf("\nThis is the end. Exiting...\n");  
 }
 
 void list_party(int size) {
@@ -74,6 +66,7 @@ void list_party(int size) {
 
   printf("Generated data is: ");
   print_array(arr, size);
+  free(arr);
   printf("\nGenerated list is: ");
   list_print(head);
   printf("\n\n");
@@ -130,16 +123,94 @@ void list_party(int size) {
 
   printf("\nList after all operations: ");
   list_print(head);
-  printf("\nThis is the end. Exiting...\n");
   
   list_free(head);
 }
 
 void tree_party(int size, int type) {
+  int *arr = generate_unique_array(size, 2);
+  tree_element* root = NULL;
+
+  if(type == 1)
+    root = tree_init(arr, size);
+  else
+    root = tree_avl_init(arr, size, 1);
+
+  tree_to_file(root, "dot/before_op.dot");
+  
+  printf("Generated data is: ");
+  print_array(arr, size);
+  free(arr);
+  printf("\nGenerated tree (in order) is: ");
+  tree_print(root);
+  int n;
+  printf("\n\nElement to search: ");
+  scanf("%d", &n);
+
+  if(tree_search(root, n))
+    printf("Found\n\n");
+  else
+    printf("Not found\n\n");
+
+  printf("How many elements to insert:\n");
+  n = -1;
+  while(n <= 0) {
+    printf("Your choice: ");
+    scanf("%d", &n);
+  }
+
+  printf("Type your numbers (space as a delimiter): ");
+  int to_ins;
+  for(int i = 0; i < n; i++) {
+    scanf("%d", &to_ins);
+    tree_insert(&root, to_ins);
+  }
+
+  if(type == 2) {
+    printf("Rebuilding the tree...");
+    tree_avl_rebuild(&root, size + n);
+  }
+
+  int new_size = size + n;
+
+  tree_to_file(root, "dot/after_ins.dot");
+
+  printf("\nTree after inserting: ");
+  tree_print(root);
+  printf("\n\nHow many elements to remove?\n");
+  n = -1;
+  while(n <= 0) {
+    printf("Your choice: ");
+    scanf("%d", &n);
+  }
+
+  printf("\nType your numbers (space as a delimiter): ");
+  int to_del, nobody_needs_it;
+  for(int i = 0; i < n; i++) {
+    scanf("%d", &to_del);
+    if(tree_search(root, to_del)) {
+      tree_remove(&root, to_del, &nobody_needs_it);
+      printf("%d successfully removed.\n", to_del);
+    }
+    else
+      printf("%d not found.", to_del);
+  }
+
+  if(type == 2) {
+    printf("\nRebuilding the tree...");
+    tree_avl_rebuild(&root, new_size - n);
+  }
+
+  tree_to_file(root, "dot/after_op.dot");
+
+  printf("\nTree after all operations: ");
+  tree_print(root);
+  printf("\nFreeing tree memory...");
+  tree_free(root);
 }
 
-int end_party() {
-  printf("You're not supposed to do so. Aborting...\n");
-  exit(1);
-}
+
+
+
+
 

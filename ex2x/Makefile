@@ -1,3 +1,4 @@
+.PHONY : clean memtest dot graphs tests cli
 FLAGS = -std=gnu99 -Wall -lrt
 
 all: list.o tree.o tree_avl.o utils.o auto_test.o main.o
@@ -24,10 +25,10 @@ auto_test.o:
 clean:
 	rm -f obj/*.o dot/* ex2
 
-memtest: all
+memtest: 
 	valgrind --leak-check=full ./ex2	
 
-dot: all
+dot: 
 	./scripts/gen-dot.sh
 
 graphs:

@@ -49,7 +49,7 @@ void start_party() {
   printf("\nWhat number of elements?\n");
 
   int n = -1;
-  while(n <= 0 || n >= INT_MAX) {
+  while(n <= 0) {
     printf("Your choice: ");
     scanf("%d", &n);
   }
@@ -73,9 +73,65 @@ void list_party(int size) {
   list_element* head = list_init_from_array(size, arr);
 
   printf("Generated data is: ");
+  print_array(arr, size);
+  printf("\nGenerated list is: ");
   list_print(head);
   printf("\n\n");
-  //will finish it overnight
+  
+  int n;
+
+  printf("Element to search: ");
+  scanf("%d", &n);
+
+  if(list_search(head, n))
+    printf("\nFound\n\n");
+  else
+    printf("\nNot found\n\n");
+
+  n = -1;
+
+  printf("How many elements to insert?\n");
+
+  while(n <= 0) {
+    printf("Your choice: ");
+    scanf("%d", &n);
+  }
+
+  printf("\nType your numbers (space as a delimiter): ");
+  int to_ins;
+  for(int i = 0; i < n; i++) {
+    scanf("%d", &to_ins);
+    list_insert(head, to_ins);
+  }
+
+  printf("List after inserting: ");
+  list_print(head);
+  printf("\n\n");
+
+  printf("How many elements to remove?\n");
+
+  n = -1;
+  while(n <= 0) {
+    printf("Your choice: ");
+    scanf("%d", &n);
+  }
+  
+  printf("\nType your numbers (space as delimiter): ");
+  int to_del;
+  for(int i = 0; i < n; i++) {
+    scanf("%d", &to_del);
+    if(list_search(head, to_del)) {
+      list_remove(head, to_del);
+      printf("%d successfully removed.\n", to_del);
+    }
+    else
+      printf("%d not found.\n", to_del);
+  }
+
+  printf("\nList after all operations: ");
+  list_print(head);
+  printf("\nThis is the end. Exiting...\n");
+  
   list_free(head);
 }
 

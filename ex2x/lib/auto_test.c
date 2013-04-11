@@ -97,7 +97,7 @@ void auto_test_remove(int n, double results[], test_set *set) {
   int *array = (int*)malloc(sizeof(int)*to_remove);
   struct timespec begin, end;
   results[0]=results[1]=results[2]=0;
-
+  printf("debug: n=%d; size=%d; results[2]=%f\n",n,size,results[2]);
   for (i = 0; i < to_remove; i++)
     array[i] = rand()%size;
 
@@ -114,7 +114,7 @@ void auto_test_remove(int n, double results[], test_set *set) {
   //bst
     clock_gettime(CLOCK_REALTIME, &begin);
     for (j = 0; j < to_remove; j++)
-      tree_remove(&(set[i].avl), array[j], &success);
+      tree_remove(&(set[i].bst), array[j], &success);
     clock_gettime(CLOCK_REALTIME, &end);
     results[1] += timespec_to_miliseconds(&begin, &end);
 
@@ -125,7 +125,7 @@ void auto_test_remove(int n, double results[], test_set *set) {
       tree_remove(&(set[i].avl), array[j], &success);
       if(success == 1) size_cpy--;
     }
-    tree_avl_rebuild(&(set->avl), size_cpy);
+    tree_avl_rebuild(&(set[i].avl), size_cpy);
     clock_gettime(CLOCK_REALTIME, &end);
     results[2] += timespec_to_miliseconds(&begin, &end);
   }

@@ -19,8 +19,8 @@ Adjacency_List::Adjacency_List(unsigned int _V, int **matrix) {
 }
   
 void Adjacency_List::toposort_visit(int i) {
-  if(!visited[i]) {
-    visited[i] = true;
+  if(!this->visited[i]) {
+    this->visited[i] = true;
     for(auto it = this->vertices[i].begin(); it != this->vertices[i].end();
         ++it) {
       this->toposort_visit(*it);

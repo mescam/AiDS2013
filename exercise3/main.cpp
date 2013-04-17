@@ -1,4 +1,7 @@
 #include "lib/adjacency_list.h"
+#include "lib/edge_list.h"
+#include "lib/adjacency_matrix.h"
+#include <iostream>
 
 //clang++ -std=c++11 lib/graph.cpp lib/adjacency_list.cpp main.cpp -o graphs
 int main(int argc, const char *argv[])
@@ -17,11 +20,23 @@ int main(int argc, const char *argv[])
   matrix[0][1]=matrix[0][2]=matrix[0][3]=matrix[1][4]=matrix[2][3]=
     matrix[3][1]=1;
 
+  std::cout << "Adjacency list: " << std::endl;
   Adjacency_List adj_list(5, matrix);
-
   adj_list.toposort();
-
   adj_list.print_sorted();
+  std::cout << "----------------" << std::endl;
+
+  std::cout << "Edge list: " << std::endl;
+  Edge_List e_list(5, matrix);
+  e_list.toposort();
+  e_list.print_sorted();
+  std::cout << "----------------" << std::endl;
+
+  std::cout << "Adjacency matrix: " << std::endl;
+  Adjacency_Matrix adj_mat(5, matrix);
+  adj_mat.toposort();
+  adj_mat.print_sorted();
+  std::cout << "----------------" << std::endl;
 
   for (int i = 0; i < 5; i++) {
     delete[] matrix[i];

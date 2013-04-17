@@ -14,7 +14,8 @@ class Graph {
     unsigned int V;
 
   public:
-    virtual void toposort();
+    virtual void toposort_visit(int i);
+    void toposort();
     void print_sorted();
 };
 

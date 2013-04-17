@@ -13,7 +13,7 @@ class Edge_List : public Graph {
 
   public:
     Edge_List(unsigned int _V, int **matrix);
-    void toposort();
+
 
 };
 

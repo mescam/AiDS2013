@@ -40,12 +40,6 @@ Graph_Matrix::~Graph_Matrix() {
   delete[] this->matrix;
 }
 
-void Graph_Matrix::toposort() {
-  for (int i = 0; i < this->V; i++) {
-    this->toposort_visit(i);
-  }
-}
-
 void Graph_Matrix::toposort_visit(int i) {
   if(!this->visited[i]) {
     this->visited[i] = true;

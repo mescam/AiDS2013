@@ -13,7 +13,6 @@ class Adjacency_Matrix : public Graph {
     int **matrix;
   public:
     Adjacency_Matrix(unsigned int _V, int **_matrix);
-    void toposort();
 };
 
 #endif /* end of include guard: ADJACENCY_MATRIX_H */

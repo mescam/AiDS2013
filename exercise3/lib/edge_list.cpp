@@ -17,12 +17,6 @@ Edge_List::Edge_List(unsigned int _V, int **matrix) {
 }
 
 
-void Edge_List::toposort() {
-  for (int i = 0; i < this->V; i++) {
-    this->toposort_visit(i);
-  }
-}
-
 void Edge_List::toposort_visit(int i) {
   if(!this->visited[i]) {
     this->visited[i] = true;

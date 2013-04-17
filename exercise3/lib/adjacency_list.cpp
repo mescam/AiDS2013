@@ -29,9 +29,3 @@ void Adjacency_List::toposort_visit(int i) {
   }
 }
 
-void Adjacency_List::toposort() {
-  for (int i = 0; i < this->V; i++) {
-    this->toposort_visit(i);
-  }
-}
-

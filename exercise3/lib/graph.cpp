@@ -14,5 +14,11 @@ void Graph::print_sorted() {
 }
 
 void Graph::toposort() {
-  std::cout << "not implemented yet" << std::endl;
+  for (int i = 0; i < this->V; i++) {
+    this->toposort_visit(i);
+  }
+}
+
+void Graph::toposort_visit(int i) {
+  return;
 }

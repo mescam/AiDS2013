@@ -13,7 +13,6 @@ class Graph_Matrix : public Graph {
   public:
     Graph_Matrix(unsigned int _V, int **_matrix);
     ~Graph_Matrix();
-    void toposort();
     void print_Sternas_matrix();
 };
 

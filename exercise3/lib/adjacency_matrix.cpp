@@ -10,12 +10,6 @@ Adjacency_Matrix::Adjacency_Matrix(unsigned int _V, int **_matrix) {
   std::fill(this->visited.begin(), this->visited.end(), false);
 }
 
-void Adjacency_Matrix::toposort() {
-  for (int i = 0; i < this->V; i++) {
-    this->toposort_visit(i);
-  }
-}
-
 void Adjacency_Matrix::toposort_visit(int i) {
   if(!this->visited[i]) {
     this->visited[i] = true;

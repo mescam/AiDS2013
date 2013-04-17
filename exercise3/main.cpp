@@ -2,12 +2,14 @@
 #include "lib/edge_list.h"
 #include "lib/adjacency_matrix.h"
 #include "lib/graph_matrix.h"
+#include "lib/dag_gen.h"
+#include "lib/auto_tests.h"
 #include <iostream>
 
 //clang++ -std=c++11 lib/graph.cpp lib/adjacency_list.cpp main.cpp -o graphs
 int main(int argc, const char *argv[])
 {
-  int **matrix;
+/*  int **matrix;
 
   matrix = new int*[5];
   for (int i = 0; i < 5; i++) {
@@ -52,6 +54,8 @@ int main(int argc, const char *argv[])
     delete[] matrix[i];
   }
   delete[] matrix;
-  
+  */
+  auto_test_flow();
+
   return 0;
 }

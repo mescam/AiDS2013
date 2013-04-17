@@ -71,9 +71,3 @@ void dag_gen_free(int **matrix, int v) {
   delete[] matrix;
 }
 
-int main() {
-  srand(time(NULL));
-  auto matrix = dag_gen_matrix(1000);
-  dag_gen_dot(matrix, 1000);
-  dag_gen_free(matrix,1000);
-}

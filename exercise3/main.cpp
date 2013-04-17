@@ -1,6 +1,7 @@
 #include "lib/adjacency_list.h"
 #include "lib/edge_list.h"
 #include "lib/adjacency_matrix.h"
+#include "lib/graph_matrix.h"
 #include <iostream>
 
 //clang++ -std=c++11 lib/graph.cpp lib/adjacency_list.cpp main.cpp -o graphs
@@ -37,6 +38,15 @@ int main(int argc, const char *argv[])
   adj_mat.toposort();
   adj_mat.print_sorted();
   std::cout << "----------------" << std::endl;
+
+
+  std::cout << "Graph matrix: " << std::endl;
+  Graph_Matrix gmat(5, matrix);
+  //gmat.print_Sternas_matrix();
+  gmat.toposort();
+  gmat.print_sorted();
+  std::cout << "----------------" << std::endl;
+
 
   for (int i = 0; i < 5; i++) {
     delete[] matrix[i];

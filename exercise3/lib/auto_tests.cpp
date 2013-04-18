@@ -6,7 +6,7 @@
 #include <fstream>
 #include <ctime>
 
-#define TESTS 1
+#define TESTS 10
 
 double timespec_to_miliseconds(timespec *begin, timespec *end) {
   return (double) (end->tv_sec - begin->tv_sec)+1.e-9*(end->tv_nsec - begin->tv_nsec);
@@ -15,7 +15,7 @@ double timespec_to_miliseconds(timespec *begin, timespec *end) {
 void auto_test_flow() {
   
   std::ofstream output("tests/results.txt");
-  for (int n = 0; n < 50; n+=10) {
+  for (int n = 0; n <= 2000; n+=200) {
     output << n;
     double results[4] = {0,0,0,0};
 
@@ -62,7 +62,7 @@ void auto_test_flow() {
     }
 
     for (int i = 0; i < 4; i++) {
-      results[0]/=TESTS;
+      results[i]/=TESTS;
     }
     
     output << " " << results[0] << " " << results[1] << " " << results[2] << " " << results[3] << std::endl;

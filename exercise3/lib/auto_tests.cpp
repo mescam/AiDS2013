@@ -6,7 +6,7 @@
 #include <fstream>
 #include <ctime>
 
-#define TESTS 10
+#define TESTS 3
 
 double timespec_to_miliseconds(timespec *begin, timespec *end) {
   return (double) (end->tv_sec - begin->tv_sec)+1.e-9*(end->tv_nsec - begin->tv_nsec);
@@ -21,7 +21,7 @@ void auto_test_flow() {
 
     for (int test = 0; test < TESTS; test++) { 
       printf("Generating matrix n=%d, test #%d\n", n, test);
-      auto matrix = dag_gen_matrix(n);
+      auto matrix = dag_gen_matrix2(n);
       printf("Done! \n");
       
       printf("Creating structures...\n");

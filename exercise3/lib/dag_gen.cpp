@@ -5,6 +5,35 @@
 #include <utility>
 #include "dag_gen.h"
 
+int **dag_gen_matrix2(int v) {
+  std::random_device rd;
+  std::mt19937 mt(rd());
+  std::uniform_int_distribution<> ldist(1,50);
+  std::uniform_int_distribution<> pdist(1,100);
+
+  int **matrix = new int*[v];
+  std::vector<int> layers(v);
+
+  for(int i = 0; i < v; i++)
+    matrix[i] = new int[v]();
+
+  for(int &v : layers)
+    v = ldist(mt);
+
+  for(int i = 0; i < v; i++)
+    for(int j = 0; j < v; j++)
+      if(layers[i] < layers[j]) {
+        int shot = pdist(mt);
+
+        if(shot < 50)
+          matrix[i][j] = 1;
+        else
+          matrix[i][j] = 0;
+      }
+
+  return matrix;
+}
+
 int **dag_gen_matrix(int v) {
   using std::swap;
   int **matrix = new int*[v];
@@ -53,7 +82,7 @@ int **dag_gen_matrix(int v) {
   }
 
   //printf("after for\n");
-  
+
   return matrix;
 }
 

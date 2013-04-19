@@ -115,14 +115,11 @@ void dag_gen_free(int **matrix, int v) {
 }
 
 std::list<int> bfs_unconnected(int **matrix, int v) {
-  std::vector<int> unconnected;
+  std::vector<int> unconnected(v, true);
   bfs_queue queue;
   std::list<int> return_unconnected;
 
   queue.push(0);
-  unconnected.resize(v);
-  std::fill(unconnected.begin(), unconnected.end(), true);
-
   while(!queue.empty()) {
     int u = queue.front();
     queue.pop();
@@ -137,9 +134,20 @@ std::list<int> bfs_unconnected(int **matrix, int v) {
   }
 
   for(auto it = unconnected.begin(); it != unconnected.end(); it++) {
-    if(*it == false)
+    if(*it == true)
       return_unconnected.push_front(it-unconnected.begin());
   }
     
   return return_unconnected;
+}
+
+void bfs_linker(int **matrix, int v, int bfs_first) {
+  int r;
+  for(r = 0; r < v; r++) {
+    if(bfs_first != r)
+      break;
+  }
+  printf("Selected vertex: %d\n",r);
+  printf("Linking %d -> %d\n", r, bfs_first);
+  matrix[r][bfs_first] = 1;
 }

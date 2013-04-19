@@ -5,12 +5,14 @@
 #include "dag_gen.h"
 #include <fstream>
 #include <ctime>
-
+#include <list>
 #define TESTS 3
 
 double timespec_to_miliseconds(timespec *begin, timespec *end) {
-  return (double) (end->tv_sec - begin->tv_sec)+1.e-9*(end->tv_nsec - begin->tv_nsec);
+  return (double) (end->tv_sec - begin->tv_sec)
+    +1.e-9*(end->tv_nsec - begin->tv_nsec);
 }
+
 
 void auto_test_flow() {
 
@@ -23,12 +25,16 @@ void auto_test_flow() {
       printf("Generating matrix n=%d, test #%d\n", n, test);
       auto matrix = dag_gen_matrix(n);
       if(n>0) { 
-        auto bfs_list = bfs_unconnected(matrix, n);
-        if(!bfs_list.empty()) {
-          printf("Generated graph is unconnected. Retry. \n");
-          test--;
-          dag_gen_free(matrix, n);
-          continue;
+        while(true) {
+          auto bfs_list = bfs_unconnected(matrix, n);
+          if(!bfs_list.empty()) {
+            printf("Generated graph is unconnected (bfs.size()=%d). Retry. \n",
+                bfs_list.size());
+            bfs_linker(matrix, n, bfs_list.front());
+
+          }else{
+            break;
+          }
         }
       }
 
@@ -75,7 +81,8 @@ void auto_test_flow() {
       results[i]/=TESTS;
     }
 
-    output << " " << results[0] << " " << results[1] << " " << results[2] << " " << results[3] << std::endl;
+    output << " " << results[0] << " " << results[1] << " " 
+      << results[2] << " " << results[3] << std::endl;
   }
   output.close();
 }

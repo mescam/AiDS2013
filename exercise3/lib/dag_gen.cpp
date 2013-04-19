@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <vector>
 #include <utility>
+#include <queue>
 #include "dag_gen.h"
+#include <list>
 
 int **dag_gen_matrix2(int v) {
   std::random_device rd;
@@ -112,3 +114,32 @@ void dag_gen_free(int **matrix, int v) {
   delete[] matrix;
 }
 
+std::list<int> bfs_unconnected(int **matrix, int v) {
+  std::vector<int> unconnected;
+  bfs_queue queue;
+  std::list<int> return_unconnected;
+
+  queue.push(0);
+  unconnected.resize(v);
+  std::fill(unconnected.begin(), unconnected.end(), true);
+
+  while(!queue.empty()) {
+    int u = queue.front();
+    queue.pop();
+    //printf("n=%d u=%d vector.size()=%d\n",v,u,unconnected.size());
+    unconnected[u] = false;
+    for(int i = 0; i < v; i++) {
+      //printf("test1\n");
+      if(matrix[u][i] == 1 && unconnected[i]) {
+        queue.push(i);
+      }
+    }
+  }
+
+  for(auto it = unconnected.begin(); it != unconnected.end(); it++) {
+    if(*it == false)
+      return_unconnected.push_front(it-unconnected.begin());
+  }
+    
+  return return_unconnected;
+}

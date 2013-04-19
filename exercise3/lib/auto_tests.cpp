@@ -13,7 +13,7 @@ double timespec_to_miliseconds(timespec *begin, timespec *end) {
 }
 
 void auto_test_flow() {
-  
+
   std::ofstream output("tests/results.txt");
   for (int n = 0; n <= 2000; n+=200) {
     output << n;
@@ -21,9 +21,19 @@ void auto_test_flow() {
 
     for (int test = 0; test < TESTS; test++) { 
       printf("Generating matrix n=%d, test #%d\n", n, test);
-      auto matrix = dag_gen_matrix2(n);
+      auto matrix = dag_gen_matrix(n);
+      if(n>0) { 
+        auto bfs_list = bfs_unconnected(matrix, n);
+        if(!bfs_list.empty()) {
+          printf("Generated graph is unconnected. Retry. \n");
+          test--;
+          dag_gen_free(matrix, n);
+          continue;
+        }
+      }
+
       printf("Done! \n");
-      
+
       printf("Creating structures...\n");
       Adjacency_List adj_list(n, matrix);
       Adjacency_Matrix adj_mat(n, matrix);
@@ -33,7 +43,7 @@ void auto_test_flow() {
 
       printf("Sorting...\nadj_list\n");
       timespec begin, end;
-      
+
       clock_gettime(CLOCK_REALTIME, &begin);
       adj_list.toposort();
       clock_gettime(CLOCK_REALTIME, &end);
@@ -64,7 +74,7 @@ void auto_test_flow() {
     for (int i = 0; i < 4; i++) {
       results[i]/=TESTS;
     }
-    
+
     output << " " << results[0] << " " << results[1] << " " << results[2] << " " << results[3] << std::endl;
   }
   output.close();

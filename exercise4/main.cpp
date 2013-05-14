@@ -4,12 +4,12 @@
 #include <iostream>
 
 int main() {
-  auto matrix = generate_graph(20,0.3);
+  auto matrix = generate_graph(10,0.3);
 
-  auto lst = new Adjacency_List(20,matrix);
-  lst->euler_cycle(0);
-  lst->print_cycle();
-
+  auto lst = new Adjacency_List(10,matrix);
+  lst->hamilton_cycle();
+  lst->euler_cycle();
+  
   //no destroying of generated matrix, how baaad, TODO
   
   return 0;

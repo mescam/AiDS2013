@@ -15,9 +15,11 @@ class Graph {
       std::random_shuffle(vertices.begin(), vertices.end());
       for (int i = 0; i < this->v-1; i++) {
         this->adj_list[vertices[i]].push_back(vertices[i+1]);
+        this->adj_list[vertices[i+1]].push_back(vertices[i]);
         this->curr_edges++;
       }  
       this->adj_list[vertices[this->v-1]].push_back(vertices[0]);
+      this->adj_list[vertices[0]].push_back(vertices[this->v-1]);
     };
 
     void add_cycles(){
@@ -34,10 +36,12 @@ class Graph {
             next = rand()%this->v;
           }while(next==vertex);
           this->adj_list[vertex].push_back(next);
+          this->adj_list[next].push_back(first);
           cycle--; this->curr_edges++;
           vertex = next;
         }
         this->adj_list[vertex].push_back(first);
+        this->adj_list[first].push_back(vertex);
         this->curr_edges++;
       }
     }

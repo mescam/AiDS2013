@@ -7,6 +7,13 @@
 
 class Graph {
   private:
+    std::vector<std::list<int>> adj_list;
+    int v;
+    float x;
+    int curr_edges = 0;
+    int max_edges;
+
+
     void generate_first_hammilton() {
       std::vector<int> vertices;
       for (int i = 0; i < this->v; i++) {
@@ -47,12 +54,6 @@ class Graph {
     }
 
   public:
-    std::vector<std::list<int>> adj_list;
-    int v;
-    float x;
-    int curr_edges = 0;
-    int max_edges;
-
     void generate_graph(int _v, float _x) {
       this->v = _v;
       this->x = _x;
@@ -80,10 +81,10 @@ class Graph {
 int main(int argc, const char *argv[])
 {
   Graph g;
-  g.generate_graph(10,0.7);
+  g.generate_graph(800,0.7);
   g.dot();
   return 0;
 }
 
 
-      
+

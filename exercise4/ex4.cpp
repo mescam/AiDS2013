@@ -16,6 +16,11 @@ class Graph {
     std::stack<int> euler;
     std::vector<int> vertices;
     std::list<std::pair<int, int>> edges;
+  std::list<int> hamilton_list;
+  std::vector<int> hamilton_cycle_arr;
+  int hamilton_first;
+  std::vector<bool> visited;
+  bool first_cycle = true;
 
     void generate_first_hammilton() {
       for (int i = 0; i < this->v; i++) {
@@ -104,6 +109,54 @@ class Graph {
       }
       this->euler.push(v);
     };
+
+  void dfs_hamilton(int v) {
+    if(this->hamilton_list.empty())
+      this->hamilton_first = v;
+
+    this->hamilton_list.push_back(v);
+
+    if(this->hamilton_list.size() != this->v) {
+      this->visited[v] = true;
+
+      for(auto it = this->adj_list[v].begin(); it != this->adj_list[v].end();
+          it++)
+        if(!this->visited[(*it)])
+          this->dfs_hamilton(*it);
+
+      this->visited[v] = false;
+    }
+    else {
+      bool is_cycle = false;
+
+      for(auto it = this->adj_list[v].begin(); it != this->adj_list[v].end();
+          it++)
+        if(this->hamilton_first == (*it)) {
+          is_cycle = true;
+          break;
+        }
+
+      if(is_cycle) {
+        if(this->first_cycle) {
+          for(auto it = this->hamilton_list.begin(); it != this->hamilton_list.end();
+              it++)
+            this->hamilton_cycle_arr.push_back(*it);
+
+          return;
+        }
+        else {
+          std::cout << "Hamilton cycle: ";
+          for(auto it = this->hamilton_list.begin(); it != this->hamilton_list.end();
+              it++)
+            std::cout << *it << " ";
+
+          std::cout << std::endl;
+        }
+      }
+    }
+
+    this->hamilton_list.pop_back();
+  }
     void generate_graph(int _v, float _x) {
       this->v = _v;
       this->x = _x;
@@ -138,7 +191,19 @@ class Graph {
         //printf("%d\n",x);
         this->euler.pop();
       }
-    }
+    };
+
+      void hamilton_cycle() {
+        std::fill(this->visited.begin(), this->visited.end(), false);
+        this->dfs_hamilton(0);
+        std::cout << "Hamilton cycle: ";
+
+        for(auto it = this->hamilton_cycle_arr.begin();
+            it != this->hamilton_cycle_arr.end(); it++)
+          std::cout << *it << " ";
+
+        std::cout << std::endl;
+      };
 };
 
 double timespec_to_miliseconds(timespec *begin, timespec *end) {
@@ -180,7 +245,8 @@ int main(int argc, const char *argv[])
     wynik << n[i] << " " << a << " " << b << std::endl;
   }
   wynik.close();
-
+  
+  
   return 0;
 }
 

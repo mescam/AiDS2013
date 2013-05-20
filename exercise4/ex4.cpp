@@ -109,10 +109,12 @@ class Graph {
       }
       this->euler.push(v);
     };
-
+  void prepare_to_hamilton() {
+    std::fill(this->visited.begin(), this->visited.end(), false);
+  }
   void dfs_hamilton(int v) {
-    if(this->hamilton_list.empty())
-      this->hamilton_first = v;
+    // if(this->hamilton_list.empty())
+    //   this->hamilton_first = v;
 
     this->hamilton_list.push_back(v);
 
@@ -121,7 +123,7 @@ class Graph {
       
       for(auto it = this->adj_list[v].begin(); it != this->adj_list[v].end();
           it++) {
-        if((*it) == this->hamilton_first) {
+        if((*it) == 0) {
           is_cycle = true;
           break;
         }          
@@ -216,31 +218,35 @@ int main(int argc, const char *argv[])
   //printf("\n\n");
   //g.euler_cycle();
 
-  int n[10] = {100, 150, 200, 250, 300, 350, 400, 450, 500, 550};
-  //int n[10] = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
-  //float x = {0.3, 0.7}
-  std::ofstream wynik("res.txt");
-  for(int i=0; i<10; i++) {
-    timespec begin,end;
-    double a,b;
-    Graph g1,g2;
-    g1.generate_graph(n[i],0.3);
-    g2.generate_graph(n[i],0.7);
+  // int n[10] = {100, 150, 200, 250, 300, 350, 400, 450, 500, 550};
+  // //int n[10] = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+  // //float x = {0.3, 0.7}
+  // std::ofstream wynik("res.txt");
+  // for(int i=0; i<10; i++) {
+  //   timespec begin,end;
+  //   double a,b;
+  //   Graph g1,g2;
+  //   g1.generate_graph(n[i],0.3);
+  //   g2.generate_graph(n[i],0.7);
 
-    printf("euler %d 0.3\n",n[i]);
-    clock_gettime(CLOCK_REALTIME, &begin);
-    g1.dfs_euler(0);
-    clock_gettime(CLOCK_REALTIME, &end);
-    a = timespec_to_miliseconds(&begin, &end);
-    printf("euler %d 0.7\n",n[i]);
-    clock_gettime(CLOCK_REALTIME, &begin);
-    g2.dfs_euler(0);
-    clock_gettime(CLOCK_REALTIME, &end);
-    b = timespec_to_miliseconds(&begin, &end);
-    printf("done\n\n");
-    wynik << n[i] << " " << a << " " << b << std::endl;
-  }
-  wynik.close();
+  //   printf("euler %d 0.3\n",n[i]);
+  //   clock_gettime(CLOCK_REALTIME, &begin);
+  //   g1.dfs_euler(0);
+  //   clock_gettime(CLOCK_REALTIME, &end);
+  //   a = timespec_to_miliseconds(&begin, &end);
+  //   printf("euler %d 0.7\n",n[i]);
+  //   clock_gettime(CLOCK_REALTIME, &begin);
+  //   g2.dfs_euler(0);
+  //   clock_gettime(CLOCK_REALTIME, &end);
+  //   b = timespec_to_miliseconds(&begin, &end);
+  //   printf("done\n\n");
+  //   wynik << n[i] << " " << a << " " << b << std::endl;
+  // }
+  // wynik.close();
+  Graph g;
+  g.prepare_to_hamilton();
+  g.generate_graph(10, 0.7);
+  g.dfs_hamilton(0);
   
   return 0;
 }

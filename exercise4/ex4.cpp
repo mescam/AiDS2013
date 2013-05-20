@@ -12,7 +12,7 @@ class Graph {
     float x;
     int curr_edges = 0;
     int max_edges;
-
+    std::stack<int> euler;
 
     void generate_first_hammilton() {
       std::vector<int> vertices;
@@ -27,6 +27,7 @@ class Graph {
       }  
       this->adj_list[vertices[this->v-1]].push_back(vertices[0]);
       this->adj_list[vertices[0]].push_back(vertices[this->v-1]);
+      this->curr_edges++;
     };
 
     void add_cycles(){
@@ -51,7 +52,25 @@ class Graph {
         this->adj_list[first].push_back(vertex);
         this->curr_edges++;
       }
-    }
+    };
+
+    void dfs_euler(int v) {
+      while(!this->adj_list[v].empty()) {
+        int x = this->adj_list[v].front();
+        this->adj_list[v].pop_front();
+
+        for(auto i = this->adj_list[x].begin(); i != this->adj_list[x].end();
+            i++) {
+          if(*i == v) {
+            this->adj_list[x].erase(i);
+            break;
+          }
+        }
+        this->dfs_euler(x);
+      }
+      this->euler.push(v);
+    };
+
 
   public:
     void generate_graph(int _v, float _x) {
@@ -76,13 +95,28 @@ class Graph {
           printf("%d -- %d;\n",i,*it);
       printf("}\n");
     };
+
+    void euler_cycle() {
+      this->dfs_euler(0);
+
+      printf("curr edges: %d\neuler.size = %d\n\n",this->curr_edges,
+          this->euler.size());
+      while(!this->euler.empty()) {
+        int x = this->euler.top();
+        printf("%d\n",x);
+        this->euler.pop();
+      }
+    }
 };
 
 int main(int argc, const char *argv[])
 {
+  srand(time(0));
   Graph g;
-  g.generate_graph(800,0.7);
-  g.dot();
+  g.generate_graph(10,0.2);
+  //g.dot();
+  printf("\n\n\n\n\n");
+  g.euler_cycle();
   return 0;
 }
 

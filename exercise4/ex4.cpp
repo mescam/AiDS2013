@@ -51,47 +51,30 @@ class Graph {
       this->curr_edges++;
     }
 
-    void add_cycles(){
-      //int cycle = 2;
-      int cycle = (this->v/2)-1;
+  void add_cycles(){
+      int cycle;
+      for(cycle=2; cycle<this->v; cycle++) {
+        if(this->v % cycle == 0) break;
+      }
       int i;
       int start=0;
-      while(this->curr_edges < this->max_edges) {
-        /*int cycle = 0.25 * this->v;
-          cycle=(cycle>(this->max_edges - this->curr_edges))?(this->max_edges-
-          this->curr_edges):cycle;
-
-          int vertex;
-          int first = vertex = rand()%this->v;
-          while(cycle-1) {
-          int next;
-          do{
-          next = rand()%this->v;
-          }while(next==vertex);
-          this->adj_list[vertex].push_back(next);
-          this->adj_list[next].push_back(first);
-          cycle--; this->curr_edges++;
-          vertex = next;
-          }
-          this->adj_list[vertex].push_back(first);
-          this->adj_list[first].push_back(vertex);
-          this->curr_edges++;*/
-        //printf("ruszam od %d z cyklem %d\n",start,cycle);
+      while(this->curr_edges < this->max_edges && cycle<(this->v/2)) {
         i=start;
         do{
           int n = i+cycle;
           n = (n>=this->v)?n-this->v:n;
-          //printf("Dodaje %d(%d) - %d(%d)\n",vertices[i],i,vertices[n],n);
           this->add_edge(vertices[i],vertices[n]);
           i=n;
         }while(i!=start);
         start++;
         if(start==cycle) {
-          cycle--;
+          for(cycle+=1; cycle<this->v; cycle++)
+            if(this->v % cycle == 0) break;
           start=0;
         }
       }
     };
+  
   public:
     void dfs_euler(int v) {
       while(!this->adj_list[v].empty()) {
@@ -110,6 +93,7 @@ class Graph {
       this->euler.push(v);
     };
   void prepare_to_hamilton() {
+    this->visited.resize(this->v);
     std::fill(this->visited.begin(), this->visited.end(), false);
   }
   void dfs_hamilton(int v) {
@@ -129,18 +113,15 @@ class Graph {
         }          
       }
 
-      if(is_cycle)
-        std::cout << "Cykl ";
-      else
-        std::cout << "Ścieżka ";
+      if(is_cycle) {
+        std::cout << "Cykl Hamiltona: ";
 
-      std::cout << "Hamiltona: ";
+        for(auto it = this->hamilton_list.begin(); it != this->hamilton_list.end();
+            it++)
+          std::cout << (*it) << " ";
+        std::cout << "\n";
 
-      for(auto it = this->hamilton_list.begin(); it != this->hamilton_list.end();
-          it++)
-        std::cout << (*it) << " ";
-      std::cout << "\n";
-        
+      }
     }
     else {
       this->visited[v] = true;
@@ -244,8 +225,9 @@ int main(int argc, const char *argv[])
   // }
   // wynik.close();
   Graph g;
+
+  g.generate_graph(10, 0.5);
   g.prepare_to_hamilton();
-  g.generate_graph(10, 0.7);
   g.dfs_hamilton(0);
   
   return 0;

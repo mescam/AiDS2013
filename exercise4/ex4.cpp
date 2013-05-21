@@ -81,7 +81,7 @@ class Graph {
   public:
     int hamilton_first = 0;
 
-      void isolate() {
+    void isolate() {
       int n = this->v-1;
       for(auto it=this->adj_list.begin(); it!= this->adj_list.end(); it++) {
         it->remove(n);
@@ -109,13 +109,15 @@ class Graph {
       this->visited.resize(this->v);
       std::fill(this->visited.begin(), this->visited.end(), false);
     }
-  void dfs_hamilton(int v, std::time_t sec) {
-    if(std::time(0) - sec > 1) {
-      this->hamilton_first = 1;
-      std::cout << "time limit exceeded";
-      return;
-    }
-      
+
+    void dfs_hamilton(int v, long sec) {
+      if(static_cast<long>(time(0)) - sec > 2) {
+        this->hamilton_first = 1;
+        std::cout << "time limit exceeded\n";
+        return;
+      }
+      //printf("lol?\n");
+
       if(this->hamilton_first==1) return;
 
       this->hamilton_list.push_back(v);
@@ -139,7 +141,7 @@ class Graph {
             it++)
           if(!this->visited[*it]){
             if(this->hamilton_first==1) return;
-            this->dfs_hamilton(*it, time(NULL));
+            this->dfs_hamilton(*it, sec);
           }
 
         this->visited[v] = false;
@@ -230,20 +232,20 @@ void euler(){
     double a,b;
     a=b=0;
     for(int j=0; j<10; j++) {
-    Graph g1,g2;
-    g1.generate_graph(n[i],0.3);
-    g2.generate_graph(n[i],0.7);
-    printf("euler %d 0.3\n",n[i]);
-    clock_gettime(CLOCK_REALTIME, &begin);
-    g1.dfs_euler(0);
-    clock_gettime(CLOCK_REALTIME, &end);
-    a += timespec_to_miliseconds(&begin, &end);
-    printf("euler %d 0.7\n",n[i]);
-    clock_gettime(CLOCK_REALTIME, &begin);
-    g2.dfs_euler(0);
-    clock_gettime(CLOCK_REALTIME, &end);
-    b += timespec_to_miliseconds(&begin, &end);
-    printf("done\n\n");
+      Graph g1,g2;
+      g1.generate_graph(n[i],0.3);
+      g2.generate_graph(n[i],0.7);
+      printf("euler %d 0.3\n",n[i]);
+      clock_gettime(CLOCK_REALTIME, &begin);
+      g1.dfs_euler(0);
+      clock_gettime(CLOCK_REALTIME, &end);
+      a += timespec_to_miliseconds(&begin, &end);
+      printf("euler %d 0.7\n",n[i]);
+      clock_gettime(CLOCK_REALTIME, &begin);
+      g2.dfs_euler(0);
+      clock_gettime(CLOCK_REALTIME, &end);
+      b += timespec_to_miliseconds(&begin, &end);
+      printf("done\n\n");
     }
     a/=10; b/=10;
     wynik << n[i] << " " << a << " " << b << std::endl;
@@ -271,13 +273,13 @@ void hamilton1() {
 
       printf("hamilton %d 0.3 #%d\n",n[i],j);
       clock_gettime(CLOCK_REALTIME, &begin);
-      g1.dfs_hamilton(0, std::time(0));
+      g1.dfs_hamilton(0, static_cast<long>(time(0)));
       clock_gettime(CLOCK_REALTIME, &end);
       a+=timespec_to_miliseconds(&begin, &end);
 
       printf("hamilton %d 0.7 #%d\n",n[i],j);
       clock_gettime(CLOCK_REALTIME, &begin);
-      g2.dfs_hamilton(0, std::time(0));
+      g2.dfs_hamilton(0, static_cast<long>(time(0)));
       clock_gettime(CLOCK_REALTIME, &end);
       b+=timespec_to_miliseconds(&begin, &end);
 
@@ -295,10 +297,11 @@ int main(int argc, const char *argv[])
 {
   srand(time(0));
 
- /* Graph g;
-  g.generate_graph(10, 0.7);
-  g.dot();
-*/
+  /* Graph g;
+     g.generate_graph(10, 0.7);
+     g.dot();
+     */
+  ///printf("%ld\n\n",static_cast<int>(time(0)));
   switch(argv[1][0]) {
     case '1':
       euler();

@@ -29,13 +29,6 @@ class Graph {
       return false;
     }
 
-    void isolate() {
-      int n = this->v-1;
-      for(auto it=this->adj_list.begin(); it!= this->adj_list.end(); it++) {
-        it->remove(n);
-      }
-      this->adj_list[n].clear();
-    }
 
     void generate_first_hamilton() {
       for (int i = 0; i < this->v; i++) {
@@ -88,6 +81,14 @@ class Graph {
   public:
     int hamilton_first = 0;
 
+      void isolate() {
+      int n = this->v-1;
+      for(auto it=this->adj_list.begin(); it!= this->adj_list.end(); it++) {
+        it->remove(n);
+      }
+      this->adj_list[n].clear();
+    }
+
     void dfs_euler(int v) {
       while(!this->adj_list[v].empty()) {
         int x = this->adj_list[v].front();
@@ -108,9 +109,13 @@ class Graph {
       this->visited.resize(this->v);
       std::fill(this->visited.begin(), this->visited.end(), false);
     }
-    void dfs_hamilton(int v) {
-      // if(this->hamilton_list.empty())
-      //   this->hamilton_first = v;
+  void dfs_hamilton(int v, std::time_t sec) {
+    if(std::time(0) - sec > 1) {
+      this->hamilton_first = 1;
+      std::cout << "time limit exceeded";
+      return;
+    }
+      
       if(this->hamilton_first==1) return;
 
       this->hamilton_list.push_back(v);
@@ -134,7 +139,7 @@ class Graph {
             it++)
           if(!this->visited[*it]){
             if(this->hamilton_first==1) return;
-            this->dfs_hamilton(*it);
+            this->dfs_hamilton(*it, time(NULL));
           }
 
         this->visited[v] = false;
@@ -205,7 +210,7 @@ void hamilton2(){
 
       printf("hamilton full %d\n",n[i]);
       clock_gettime(CLOCK_REALTIME, &begin);
-      g.dfs_hamilton(0);
+      g.dfs_hamilton(0, std::time(0));
       clock_gettime(CLOCK_REALTIME, &end);
       printf("done\n\n");
       a+=timespec_to_miliseconds(&begin, &end);
@@ -266,13 +271,13 @@ void hamilton1() {
 
       printf("hamilton %d 0.3 #%d\n",n[i],j);
       clock_gettime(CLOCK_REALTIME, &begin);
-      g1.dfs_hamilton(0);
+      g1.dfs_hamilton(0, std::time(0));
       clock_gettime(CLOCK_REALTIME, &end);
       a+=timespec_to_miliseconds(&begin, &end);
 
       printf("hamilton %d 0.7 #%d\n",n[i],j);
       clock_gettime(CLOCK_REALTIME, &begin);
-      g2.dfs_hamilton(0);
+      g2.dfs_hamilton(0, std::time(0));
       clock_gettime(CLOCK_REALTIME, &end);
       b+=timespec_to_miliseconds(&begin, &end);
 

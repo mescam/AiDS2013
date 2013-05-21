@@ -9,6 +9,16 @@ set ylabel "Czas wykonywania [ms]"
 set out 'result1.svg'
 plot 'res.txt' using 1:2 title 'Nasycenie 30%' smooth csplines, \
 'res.txt' u 1:3 t 'Nasycenie 70%' smooth csplines
+
+set title "Wyszukiwanie cyklu Hamiltona"
+set out 'result2.svg'
+plot 'res2.txt' using 1:2 title 'Nasycenie 30%' smooth csplines, \
+'res2.txt' u 1:3 t 'Nasycenie 70%' smooth csplines
+
+set title "Wyszukiwanie wszystkich cyklów Hamiltona"
+set out 'result3.svg'
+plot 'res3.txt' using 1:2 title 'Nasycenie 50%' smooth csplines
+
 #'results.txt' u 1:2 notitle w points, \
 #'results.txt' u 1:3 notitle w points, \
 #'results.txt' u 1:4 notitle w points, \

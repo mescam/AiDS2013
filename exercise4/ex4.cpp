@@ -16,29 +16,35 @@ class Graph {
     std::stack<int> euler;
     std::vector<int> vertices;
     std::list<std::pair<int, int>> edges;
-  std::list<int> hamilton_list;
-  std::vector<int> hamilton_cycle_arr;
-  int hamilton_first;
-  std::vector<bool> visited;
-  bool first_cycle = true;
+    std::list<int> hamilton_list;
+    std::vector<int> hamilton_cycle_arr;
+    std::vector<bool> visited;
+    bool first_cycle = true;
 
-    void generate_first_hammilton() {
+    bool is_connected(int i, int j) {
+      for(auto it = this->adj_list[i].begin(); it!=this->adj_list[i].end(); it++) {
+        if ((*it)==j)
+          return true;
+      }
+      return false;
+    }
+
+    void isolate() {
+      int n = this->v-1;
+      for(auto it=this->adj_list.begin(); it!= this->adj_list.end(); it++) {
+        it->remove(n);
+      }
+      this->adj_list[n].clear();
+    }
+
+    void generate_first_hamilton() {
       for (int i = 0; i < this->v; i++) {
         vertices.push_back(i);
       }
       std::random_shuffle(vertices.begin(), vertices.end());
       for (int i = 0; i < this->v-1; i++) {
-        //this->adj_list[vertices[i]].push_back(vertices[i+1]);
-        //this->adj_list[vertices[i+1]].push_back(vertices[i]);
-        //printf("Dodaje %d(%d) - %d(%d)\n",vertices[i],i,vertices[i+1],i+1);
         this->add_edge(vertices[i], vertices[i+1]);
-        //this->curr_edges++;
       }  
-      //this->adj_list[vertices[this->v-1]].push_back(vertices[0]);
-      //this->adj_list[vertices[0]].push_back(vertices[this->v-1]);
-      //this->curr_edges++;
-      //printf("Dodaje %d(0) - %d(%d)\n\n\n",vertices[0],vertices[this->v-1],
-        //  this->v-1);
       this->add_edge(vertices[0], vertices[this->v-1]);
     };
 
@@ -51,31 +57,37 @@ class Graph {
       this->curr_edges++;
     }
 
-  void add_cycles(){
-      int cycle;
-      for(cycle=2; cycle<this->v; cycle++) {
-        if(this->v % cycle == 0) break;
-      }
+    void add_cycles(){
+      int cycle=2;
+      //for(cycle=2; cycle<this->v; cycle++) {
+      //  if(this->v % cycle == 0) break;
+      //}
+      //int add = (this->v%cycle==0)?1:0
       int i;
       int start=0;
       while(this->curr_edges < this->max_edges && cycle<(this->v/2)) {
         i=start;
         do{
           int n = i+cycle;
+          //if(this->is_connected(i,n)) break;
           n = (n>=this->v)?n-this->v:n;
+          if(this->is_connected(vertices[i],vertices[n])) break;
           this->add_edge(vertices[i],vertices[n]);
           i=n;
         }while(i!=start);
+
+        //if(add) start++; else start=cycle;
         start++;
         if(start==cycle) {
-          for(cycle+=1; cycle<this->v; cycle++)
-            if(this->v % cycle == 0) break;
+          cycle++;
           start=0;
         }
       }
     };
-  
+
   public:
+    int hamilton_first = 0;
+
     void dfs_euler(int v) {
       while(!this->adj_list[v].empty()) {
         int x = this->adj_list[v].front();
@@ -92,50 +104,44 @@ class Graph {
       }
       this->euler.push(v);
     };
-  void prepare_to_hamilton() {
-    this->visited.resize(this->v);
-    std::fill(this->visited.begin(), this->visited.end(), false);
-  }
-  void dfs_hamilton(int v) {
-    // if(this->hamilton_list.empty())
-    //   this->hamilton_first = v;
+    void prepare_to_hamilton() {
+      this->visited.resize(this->v);
+      std::fill(this->visited.begin(), this->visited.end(), false);
+    }
+    void dfs_hamilton(int v) {
+      // if(this->hamilton_list.empty())
+      //   this->hamilton_first = v;
+      if(this->hamilton_first==1) return;
 
-    this->hamilton_list.push_back(v);
+      this->hamilton_list.push_back(v);
 
-    if(this->hamilton_list.size() == this->v) {
-      bool is_cycle = false;
-      
-      for(auto it = this->adj_list[v].begin(); it != this->adj_list[v].end();
-          it++) {
-        if((*it) == 0) {
-          is_cycle = true;
-          break;
-        }          
-      }
+      if(this->hamilton_list.size() == this->v) {
+        bool is_cycle = false;
 
-      if(is_cycle) {
-        std::cout << "Cykl Hamiltona: ";
+        for(auto it = this->adj_list[v].begin(); it != this->adj_list[v].end();
+            it++) {
+          if((*it) == 0) {
+            is_cycle = true;
+            //printf("mam, spadam\n");
+            this->hamilton_first=1;
+            break;
+          }          
+        }
+      } else {
+        this->visited[v] = true;
 
-        for(auto it = this->hamilton_list.begin(); it != this->hamilton_list.end();
+        for(auto it = this->adj_list[v].begin(); it != this->adj_list[v].end();
             it++)
-          std::cout << (*it) << " ";
-        std::cout << "\n";
+          if(!this->visited[*it]){
+            if(this->hamilton_first==1) return;
+            this->dfs_hamilton(*it);
+          }
 
+        this->visited[v] = false;
       }
-    }
-    else {
-      this->visited[v] = true;
 
-      for(auto it = this->adj_list[v].begin(); it != this->adj_list[v].end();
-          it++)
-        if(!this->visited[*it])
-          this->dfs_hamilton(*it);
-
-      this->visited[v] = false;
-    }
-
-    this->hamilton_list.pop_back();
-  };
+      this->hamilton_list.pop_back();
+    };
     void generate_graph(int _v, float _x) {
       this->v = _v;
       this->x = _x;
@@ -146,9 +152,13 @@ class Graph {
         this->adj_list.push_back(a);
       }
 
-      this->generate_first_hammilton();
+      this->generate_first_hamilton();
       this->add_cycles();
-
+      for(auto it = this->adj_list.begin(); it!=this->adj_list.end(); ++it){ 
+        //std::sort(it->begin(), it->end());
+        it->sort();
+        if(it->size()%2!=0) printf("NO NIE!\n\n");
+      }
       printf("max: %d; curr: %d\n", max_edges, curr_edges);
     };
 
@@ -172,17 +182,6 @@ class Graph {
       }
     };
 
-      // void hamilton_cycle() {
-      //   std::fill(this->visited.begin(), this->visited.end(), false);
-      //   this->dfs_hamilton(0);
-      //   std::cout << "Hamilton cycle: ";
-
-      //   for(auto it = this->hamilton_cycle_arr.begin();
-      //       it != this->hamilton_cycle_arr.end(); it++)
-      //     std::cout << *it << " ";
-
-      //   std::cout << std::endl;
-      // };
 };
 
 double timespec_to_miliseconds(timespec *begin, timespec *end) {
@@ -190,46 +189,122 @@ double timespec_to_miliseconds(timespec *begin, timespec *end) {
     +1.e-9*(end->tv_nsec - begin->tv_nsec);
 }
 
+void hamilton2(){
+  int n[10] = {2,4,6,8,10,12,14,16,18,20};
+
+  std::ofstream wynik("res3.txt");
+  for(int i=0; i<10; i++) {
+    timespec begin, end;
+    double a=0;
+
+    for(int j=0; j<1; j++) {
+      Graph g;
+      g.generate_graph(n[i],0.5);
+      g.prepare_to_hamilton();
+      if(rand()%2==0) g.isolate();
+
+      printf("hamilton full %d\n",n[i]);
+      clock_gettime(CLOCK_REALTIME, &begin);
+      g.dfs_hamilton(0);
+      clock_gettime(CLOCK_REALTIME, &end);
+      printf("done\n\n");
+      a+=timespec_to_miliseconds(&begin, &end);
+    }
+    a/=1;
+    wynik << n[i] << " " << a << std::endl;
+  }
+  wynik.close();
+}
+
+void euler(){
+  int n[10] = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+  //float x = {0.3, 0.7}
+  std::ofstream wynik("res.txt");
+  for(int i=0; i<10; i++) {
+    timespec begin,end;
+    double a,b;
+    a=b=0;
+    for(int j=0; j<10; j++) {
+    Graph g1,g2;
+    g1.generate_graph(n[i],0.3);
+    g2.generate_graph(n[i],0.7);
+    printf("euler %d 0.3\n",n[i]);
+    clock_gettime(CLOCK_REALTIME, &begin);
+    g1.dfs_euler(0);
+    clock_gettime(CLOCK_REALTIME, &end);
+    a += timespec_to_miliseconds(&begin, &end);
+    printf("euler %d 0.7\n",n[i]);
+    clock_gettime(CLOCK_REALTIME, &begin);
+    g2.dfs_euler(0);
+    clock_gettime(CLOCK_REALTIME, &end);
+    b += timespec_to_miliseconds(&begin, &end);
+    printf("done\n\n");
+    }
+    a/=10; b/=10;
+    wynik << n[i] << " " << a << " " << b << std::endl;
+  }
+  wynik.close();
+}
+
+void hamilton1() {
+#define TESTS 3
+  //int n[10] = {4, 6, 8, 10, 12, 14, 16, 18, 20, 22};
+  int n[10] = {100, 200, 300, 400, 500, 600, 700, 800, 1000};
+  std::ofstream wynik("res2.txt");
+  for(int i=0; i<10; i++) {
+    double a,b;
+    a=b=0;
+    for(int j=0; j<TESTS; j++) {
+      Graph g1, g2;
+      timespec begin, end;
+      //g1.hamilton_first=1;
+      //g2.hamilton_first=1;
+      g1.generate_graph(n[i]/10, 0.3);
+      g2.generate_graph(n[i], 0.7);
+      g1.prepare_to_hamilton();
+      g2.prepare_to_hamilton();
+
+      printf("hamilton %d 0.3 #%d\n",n[i],j);
+      clock_gettime(CLOCK_REALTIME, &begin);
+      g1.dfs_hamilton(0);
+      clock_gettime(CLOCK_REALTIME, &end);
+      a+=timespec_to_miliseconds(&begin, &end);
+
+      printf("hamilton %d 0.7 #%d\n",n[i],j);
+      clock_gettime(CLOCK_REALTIME, &begin);
+      g2.dfs_hamilton(0);
+      clock_gettime(CLOCK_REALTIME, &end);
+      b+=timespec_to_miliseconds(&begin, &end);
+
+      printf("done\n\n");
+    }
+    a/=TESTS;
+    b/=TESTS;
+    wynik << n[i] << " " << a << " " << b << std::endl;
+  }
+  wynik.close();
+
+}
+
 int main(int argc, const char *argv[])
 {
-  //srand(time(0));
-  //Graph g;
-  //g.generate_graph(200,0.8);
-  //g.dot();
-  //printf("\n\n");
-  //g.euler_cycle();
+  srand(time(0));
 
-  // int n[10] = {100, 150, 200, 250, 300, 350, 400, 450, 500, 550};
-  // //int n[10] = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
-  // //float x = {0.3, 0.7}
-  // std::ofstream wynik("res.txt");
-  // for(int i=0; i<10; i++) {
-  //   timespec begin,end;
-  //   double a,b;
-  //   Graph g1,g2;
-  //   g1.generate_graph(n[i],0.3);
-  //   g2.generate_graph(n[i],0.7);
-
-  //   printf("euler %d 0.3\n",n[i]);
-  //   clock_gettime(CLOCK_REALTIME, &begin);
-  //   g1.dfs_euler(0);
-  //   clock_gettime(CLOCK_REALTIME, &end);
-  //   a = timespec_to_miliseconds(&begin, &end);
-  //   printf("euler %d 0.7\n",n[i]);
-  //   clock_gettime(CLOCK_REALTIME, &begin);
-  //   g2.dfs_euler(0);
-  //   clock_gettime(CLOCK_REALTIME, &end);
-  //   b = timespec_to_miliseconds(&begin, &end);
-  //   printf("done\n\n");
-  //   wynik << n[i] << " " << a << " " << b << std::endl;
-  // }
-  // wynik.close();
-  Graph g;
-
-  g.generate_graph(10, 0.5);
-  g.prepare_to_hamilton();
-  g.dfs_hamilton(0);
-  
+ /* Graph g;
+  g.generate_graph(10, 0.7);
+  g.dot();
+*/
+  switch(argv[1][0]) {
+    case '1':
+      euler();
+      break;
+    case '2':
+      hamilton1();
+      break;
+    case '3':
+      hamilton2();
+      break;
+  }
   return 0;
 }
 

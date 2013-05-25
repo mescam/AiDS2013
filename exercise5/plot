@@ -1,0 +1,20 @@
+set term svg enhanced
+set grid
+
+set title "Zależność czasu wykonywania algorytmu\nod liczby\
+elementów dla stałego c"
+set xlabel "Liczba elementów"
+set ylabel "Czas wykonywania [s]"
+set yrange [0:0.001]
+#set xrange [200:2000]
+set out 'result1.svg'
+plot 'res1.txt' using 1:2 title 'Algorytm dynamiczny' smooth csplines, \
+'res1.txt' u ($1/5):3 t 'Algorytm brute force' smooth csplines
+
+unset xrange
+set title "Zależność czasu wykonywania algorytmu\nod wielkości plecaka\
+dla stałego n"
+set out 'result2.svg'
+plot 'res2.txt' using 1:2 title 'Algorytm dynamiczny' smooth csplines, \
+'res2.txt' u 1:3 t 'Algorytm brute force' smooth csplines
+

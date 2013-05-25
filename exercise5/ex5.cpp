@@ -1,6 +1,21 @@
 #include <cstdio>
 #include <cstdlib>
-#define VERBOSE
+#include <ctime>
+#define NONSENSE
+
+#ifdef NONSENSE
+#include <fstream>
+#endif
+
+struct knapsack_data {
+  int *value;
+  int *weight;
+};
+
+double timespec_to_seconds(timespec *begin, timespec *end) {
+  return (double) (end->tv_sec - begin->tv_sec)
+    +1.e-9*(end->tv_nsec - begin->tv_nsec);
+}
 
 inline int max(int a, int b) {
   return (a>b)?a:b;
@@ -50,8 +65,10 @@ void knapsack_dynamic(int n, int capacity, int *value, int *weight) {
 void knapsack_bruteforce
 (int id, int sum_weight, int sum_value, int capacity, int n, int *value, 
  int *weight, bool *result, bool *temp, int *best) {
+#ifndef NONSENSE
   if(sum_weight>capacity) return; //there is no reaaasooon
-  if(id<n) { //if there are more items to check
+#endif
+  if(id<n-1) { //if there are more items to check
     //decision: false
     temp[id+1]=false; //our algorithm is not paralell, so we can use single temporary array for every call
     knapsack_bruteforce(id+1, sum_weight, sum_value, 
@@ -77,7 +94,6 @@ void knapsack_bf_iface(int n, int capacity, int *value, int *weight) {
   int best=0; //some variables
   //first call of knapsack_bruteforce with default values
   knapsack_bruteforce(-1, 0, 0, capacity, n, value, weight, result, temp, &best);
-
 #ifdef VERBOSE
   printf("Max value is: %d\n", best);
   printf("The solution is: ");
@@ -91,17 +107,107 @@ void knapsack_bf_iface(int n, int capacity, int *value, int *weight) {
 }
 
 
-int main(int argc, char** argv) {
-  int value[5] = {1,10,5,6,2};
-  int weight[5] = {1,4,3,2,1};
-  int capacity = 8;
+knapsack_data generate(int n) {
+  knapsack_data result;
+  result.value = (int*)calloc(n,sizeof(int));
+  result.weight = (int*)calloc(n,sizeof(int));
+  for(int i = 0; i < n; ++i) {
+    result.value[i] = rand()%10+1;
+    result.weight[i] = rand()%10+1;
+  }
+  return result;
+}
 
-  printf("DYNAMIC: \n");
-  knapsack_dynamic(5, capacity, value, weight);
-  printf("\n\nBRUTE FORCE: \n");
-  knapsack_bf_iface(5, capacity, value, weight);
-#ifdef _WIN32
-  system("pause");
-#endif
+#define TESTS 5
+
+void test_const_c() {
+  int c = 20;
+  int n[15] = {20,30,40,50,60,70,80,90,100,110,120,130,140,150,160};
+  std::ofstream res("res1.txt");
+  for(int i=0; i<15; i++) {
+    double a=0, b=0;
+    timespec begin, end;
+    for(int j=0; j<TESTS; j++) {
+      knapsack_data d = generate(n[i]);
+      printf("TEST n=%d #%d\n",n[i],j);
+      
+      //dynamic
+      clock_gettime(CLOCK_REALTIME, &begin);
+      knapsack_dynamic(n[i], c, d.value, d.weight);
+      clock_gettime(CLOCK_REALTIME, &end);
+      a+=timespec_to_seconds(&begin, &end);
+      printf("dynamic done\n");
+      
+      //brute force
+      clock_gettime(CLOCK_REALTIME, &begin);
+      knapsack_bf_iface(n[i]/5, c, d.value, d.weight);
+      clock_gettime(CLOCK_REALTIME, &end);
+      b+=timespec_to_seconds(&begin, &end);
+      printf("brute force done\n\n\n");
+      
+      free(d.value); 
+      free(d.weight);
+    }
+    a/=TESTS; b/=TESTS;
+    res << n[i] << " " << a << " " << b << std::endl;
+  }
+  res.close();
+  return;
+}
+
+void test_const_n() {
+  int n = 15;
+  int c[15] = {2,4,6,8,10,12,14,16,18,20,22,24,26,28,30};
+  std::ofstream res("res2.txt");
+  for(int i=0; i<15; i++) {
+    double a=0, b=0;
+    timespec begin, end;
+    for(int j=0; j<TESTS; j++) {
+      knapsack_data d = generate(n);
+      printf("TEST c=%d #%d\n",c[i],j);
+
+      //dynamic
+      clock_gettime(CLOCK_REALTIME, &begin);
+      knapsack_dynamic(n, c[i], d.value, d.weight);
+      clock_gettime(CLOCK_REALTIME, &end);
+      a+=timespec_to_seconds(&begin, &end);
+      printf("dynamic done\n");
+
+      //brute force
+      clock_gettime(CLOCK_REALTIME, &begin);
+      knapsack_bf_iface(n, c[i], d.value, d.weight);
+      clock_gettime(CLOCK_REALTIME, &end);
+      b+=timespec_to_seconds(&begin, &end);
+      printf("brute force done\n\n\n");
+      
+      free(d.weight);
+      free(d.value);
+    }
+    a/=TESTS; b/=TESTS;
+    res << c[i] << " " << a << " " << b << std::endl;
+  }
+  res.close();
+  return;
+}
+
+
+int main(int argc, char** argv) {
+  srand(time(0));
+
+  if(argc>1) {
+    switch(argv[1][0]) {
+      case '1': 
+        test_const_n();
+        printf("const n test done\n");
+        break;
+      case '2':
+        test_const_c();
+        printf("const c test done\n");
+        break;
+      case '3':
+        //from file
+        break;
+    }
+  }
   return 0;
 }

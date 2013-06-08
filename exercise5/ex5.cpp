@@ -1,12 +1,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#define NONSENSE
-
-#ifdef NONSENSE
+#define VERBOSE
 #include <fstream>
-#endif
-
 struct knapsack_data {
   int *value;
   int *weight;
@@ -62,48 +58,47 @@ void knapsack_dynamic(int n, int capacity, int *value, int *weight) {
   free(dyntable);
 } //end of knapsack dynamic
 
+unsigned long long int temp_x=0, res_x=0;
+int best=0;
+
 void knapsack_bruteforce
 (int id, int sum_weight, int sum_value, int capacity, int n, int *value, 
- int *weight, bool *result, bool *temp, int *best) {
+ int *weight) {
 #ifndef NONSENSE
   if(sum_weight>capacity) return; //there is no reaaasooon
 #endif
   if(id<n-1) { //if there are more items to check
     //decision: false
-    temp[id+1]=false; //our algorithm is not paralell, so we can use single temporary array for every call
+    //our algorithm is not paralell, so we can use single temporary var for every call
+    temp_x &= ~(1ull << (id+1));
     knapsack_bruteforce(id+1, sum_weight, sum_value, 
-        capacity, n, value, weight, result, temp, best);
+        capacity, n, value, weight);
 
     //decision: true
-    temp[id+1]=true;
+    temp_x |= (1ull << (id+1));
     knapsack_bruteforce(id+1, sum_weight+weight[id+1], 
-        sum_value+value[id+1], capacity, n, value, weight, result, temp, best);
+        sum_value+value[id+1], capacity, n, value, weight);
   }else{ //each item is checked.
-    if(sum_value>(*best)) {
-      *best = sum_value;
-      for(int i=0; i<=n; i++) {
-        result[i] = temp[i];
-      }
+    if(sum_value>best) {
+      res_x=temp_x;
+      best=sum_value;
     }
   }
 }
 
 void knapsack_bf_iface(int n, int capacity, int *value, int *weight) {
-  bool *result = (bool*)calloc(n+1, sizeof(bool));
-  bool *temp = (bool*)calloc(n+1, sizeof(bool));
-  int best=0; //some variables
   //first call of knapsack_bruteforce with default values
-  knapsack_bruteforce(-1, 0, 0, capacity, n, value, weight, result, temp, &best);
+  knapsack_bruteforce(-1, 0, 0, capacity, n, value, weight);
 #ifdef VERBOSE
   printf("Max value is: %d\n", best);
   printf("The solution is: ");
-  for(int i=0; i<=n; i++) 
-    if(result[i]) printf("%d ",i+1);
+  //printf("res_x: %lld\n\n",res_x);
+  for(int i=0; i<=n; i++) {
+    if(res_x%2) printf("%d ", i+1);
+    res_x=res_x>>1;
+  }
   printf("\n");
 #endif
-
-  free(result);
-  free(temp);
 }
 
 
@@ -206,6 +201,15 @@ int main(int argc, char** argv) {
         break;
       case '3':
         //from file
+        break;
+      case '4': {
+        knapsack_data d = generate(10);
+        knapsack_dynamic(10,10,d.value,d.weight);
+        knapsack_bf_iface(10,10,d.value,d.weight);
+        break;
+                }
+      case '5':
+        printf("%ld\n",sizeof(unsigned long long int));
         break;
     }
   }

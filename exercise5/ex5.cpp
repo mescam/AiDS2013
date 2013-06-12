@@ -1,11 +1,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#define VERBOSE
 #include <fstream>
 struct knapsack_data {
   int *value;
   int *weight;
+  int c,n;
 };
 
 double timespec_to_seconds(timespec *begin, timespec *end) {
@@ -113,12 +113,13 @@ knapsack_data generate(int n) {
   return result;
 }
 
-#define TESTS 5
+#define TESTS 100
 
 void test_const_c() {
-  int c = 20;
+  int c = 15;
   int n[15] = {20,30,40,50,60,70,80,90,100,110,120,130,140,150,160};
   std::ofstream res("res1.txt");
+  res << "0 0 0" << std::endl;
   for(int i=0; i<15; i++) {
     double a=0, b=0;
     timespec begin, end;
@@ -135,7 +136,7 @@ void test_const_c() {
       
       //brute force
       clock_gettime(CLOCK_REALTIME, &begin);
-      knapsack_bf_iface(n[i]/5, c, d.value, d.weight);
+      knapsack_bf_iface(n[i]/10, c, d.value, d.weight);
       clock_gettime(CLOCK_REALTIME, &end);
       b+=timespec_to_seconds(&begin, &end);
       printf("brute force done\n\n\n");
@@ -152,8 +153,9 @@ void test_const_c() {
 
 void test_const_n() {
   int n = 15;
-  int c[15] = {2,4,6,8,10,12,14,16,18,20,22,24,26,28,30};
+  int c[15] = {100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500};
   std::ofstream res("res2.txt");
+  res << "0 0 0" << std::endl;
   for(int i=0; i<15; i++) {
     double a=0, b=0;
     timespec begin, end;
@@ -185,6 +187,41 @@ void test_const_n() {
   return;
 }
 
+knapsack_data load() {
+  std::ifstream plik("data.txt");
+  knapsack_data d;
+  int i=0;
+  plik>>d.c;
+  plik>>d.n;
+  //int *price, *weight;
+  d.value = (int*)calloc(d.n,sizeof(int));
+  d.weight = (int*)calloc(d.n,sizeof(int));
+  while(!plik.eof()){
+    plik >> d.value[i] >> d.weight[i];
+    i++;
+  }
+  return d;
+}
+
+void turniej(knapsack_data d) {
+  timespec begin, end;
+  //printf("c=%d n=%d\n",d.c, d.n);
+  //for(int i=0; i<d.n; i++) printf("p[%d]=%d w[%d]=%d\n",i,d.value[i],i,d.weight[i]);
+  clock_gettime(CLOCK_REALTIME, &begin);
+  knapsack_bf_iface(d.n,d.c,d.value,d.weight);
+  clock_gettime(CLOCK_REALTIME, &end);
+  printf("Czas działania: %f\n",timespec_to_seconds(&begin, &end));
+  printf("Max value is: %d\n", best);
+  printf("The solution is: ");
+  //printf("res_x: %lld\n\n",res_x);
+  for(int i=0; i<=d.n; i++) {
+    if(res_x%2) printf("%d ", i+1);
+    res_x=res_x>>1;
+  }
+  printf("\n");
+
+  free(d.value); free(d.weight);
+}
 
 int main(int argc, char** argv) {
   srand(time(0));
@@ -192,16 +229,18 @@ int main(int argc, char** argv) {
   if(argc>1) {
     switch(argv[1][0]) {
       case '1': 
-        test_const_n();
-        printf("const n test done\n");
-        break;
-      case '2':
         test_const_c();
         printf("const c test done\n");
         break;
-      case '3':
-        //from file
+      case '2':
+        test_const_n();
+        printf("const n test done\n");
         break;
+      case '3': {
+        knapsack_data d = load();
+        turniej(d);
+        break;
+                }
       case '4': {
         knapsack_data d = generate(10);
         knapsack_dynamic(10,10,d.value,d.weight);
